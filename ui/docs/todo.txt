@@ -1,0 +1,73 @@
+done
+find the right graph display library for react native 
+show a graph which is derived from a json
+
+
+short term 
+
+
+be able to run the app without the dev server (figure out the build pipeline)
+this is going to cost 99 dollars, so we're going to wait until we have another day job
+https://docs.expo.dev/build/setup/
+https://docs.expo.dev/develop/development-builds/create-a-build/
+
+
+
+show a single list 
+show a list which is derived from a json
+
+
+
+
+
+get a linter set up
+
+
+
+long term 
+
+be able to export the quests
+
+
+desktop version
+
+
+text message prompting 
+should be able to send the user a text with some things they could do 
+detects if you're on some dope scroll and sends you a message
+
+
+
+time sensitive quests
+put a deadline on quest fulfillment and have that prompt the user, automatically add a calendar thing, even multiple calendar things
+
+
+have the user's data sync to their cloud storage so that it can sync across their account
+
+
+requests feature
+have a button and let the user automatically submit a request
+
+
+migration feature
+app takes in a list from somewhere else, uses an LLM to structure it and convert it into a graph
+
+
+event automation
+automatically schedule quests in the calendar for when you have time
+scans text and email and whatsapp and makes quests
+
+
+automatically decomposes quests
+if you haven't done anything in a long time on a quest, it will add simpler starting points
+
+
+long term tracking
+figures out when you're available
+figures out when you're productive
+
+
+
+checks off quests based on other AI stuff, like you tell it to or it knows from your messages 
+
+
