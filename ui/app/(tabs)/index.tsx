@@ -3,7 +3,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import QuestGraph from '@/components/QuestGraph';
+import TodoGraph from '@/components/TodoGraph';
 
 export default function HomeScreen() {
 
@@ -12,7 +12,7 @@ export default function HomeScreen() {
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
 
-        <QuestGraph />
+        <TodoGraph />
     </>
   );
 }

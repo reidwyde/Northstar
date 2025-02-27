@@ -8,11 +8,21 @@ type GraphJson = {
   edges: any[],
 };
 
-const QuestGraph = (
+const TodoGraph = (
   {
     graphJson={nodes: [], edges: []}
   }:{
-    graphJson: GraphJson
+    graphJson: {
+      nodes: {
+        id: string;
+        label: string;
+        description?: string;
+      }[];
+      edges: {
+        from: string;
+        to: string;
+      }[];
+    }
   }
 ) => {
   const visNetworkRef = useRef<VisNetworkRef>(null);
@@ -41,4 +51,4 @@ const QuestGraph = (
   );
 };
 
-export default QuestGraph;
+export default TodoGraph;
