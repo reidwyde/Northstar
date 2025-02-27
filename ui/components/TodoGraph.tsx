@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef } from 'react';
+import { Platform } from 'react-native';
 import VisNetwork, { Data } from 'react-native-vis-network';
-import { Text, View } from 'react-native';
-import { ThemedView } from '@/components/ThemedView';
+import Cytoscape from 'cytoscape';
 
 type GraphJson = {
   nodes: any[], 
@@ -25,7 +25,6 @@ const TodoGraph = (
     }
   }
 ) => {
-  const visNetworkRef = useRef<VisNetworkRef>(null);
 
   const data: Data = {
     edges: [
@@ -43,6 +42,20 @@ const TodoGraph = (
       { id: 5, label: 'Node 5' },
     ],
   };
+
+  if (Platform.OS !== 'android' && Platform.OS !== 'ios') {
+    return (
+      <Cytoscape
+        style={{
+          width: '100%',
+          height: '500px',
+        }}
+        elements={data}
+      />
+    );
+  }
+
+  const visNetworkRef = useRef<VisNetworkRef>(null);
 
   return (
     <>
