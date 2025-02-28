@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import ConstellationGraph from './ConstellationGraph';
+import ConstellationGraph from '@components/ConstellationGraph';
 
 export default function HomeScreen() {
   return (
