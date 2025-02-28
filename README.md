@@ -3,18 +3,10 @@ Productivity App
 
 ## Features
 
-### Current Features
+### App Features
 
 - **Graph Todo**: Show a single list of tasks
 - **Derived List**: Show a list derived from a JSON file
-- **Linter Setup**: Get a linter set up for code quality
-- **Export Quests**: Be able to export quests
-- **Real Build**: Make a real build so you can load it onto your phone
-- **Run without Dev Server**: Be able to run the app without the dev server (figure out the build pipeline)
-- **Apple Developer Account**: Get an Apple Developer account ($99)
-
-### Future Features
-
 - **LLM Integration**: Connect an LLM and have it decompose nodes into smaller dependencies/edit nodes
 - **Speech-to-Text Workflow**: Implement a speech-to-text to LLM workflow, so you can just tell the assistant what to do
 - **Node Properties**: Add expected time to execution and due date properties to nodes
@@ -27,6 +19,13 @@ Productivity App
 - **Event Automation**: Automatically schedule quests in the calendar for when you have time
 - **Automated Quest Decomposition**: Automatically decompose quests if you haven't done anything in a long time on a quest
 - **Long Term Tracking**: Figure out when you're available/productive and check off quests based on other AI stuff
+
+### Build Process
+
+- **Linter Setup**: Get a linter set up for code quality
+- **Real Build**: Make a real build so you can load it onto your phone
+- **Run without Dev Server**: Be able to run the app without the dev server (figure out the build pipeline)
+- **Apple Developer Account**: Get an Apple Developer account ($99)
 
 ### Resources
 
