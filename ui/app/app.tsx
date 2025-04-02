@@ -53,11 +53,11 @@ const quests: Quest[] = [
   {
     name: 'Northstar',
     nodes: [
-      { id: 'A', color: '#B0E0E6', x: 100, y: 100 },
-      { id: 'B', color: '#B0E0E6', x: 200, y: 100 },
-      { id: 'C', color: '#B0E0E6', x: 150, y: 200 },
-      { id: 'D', color: '#B0E0E6', x: 300, y: 200 },
-      { id: 'E', color: '#B0E0E6', x: 250, y: 300 },
+      { id: 'A', color: '#B0E0E6', x: 100, y: 100, description: '' },
+      { id: 'B', color: '#B0E0E6', x: 200, y: 100, description: '' },
+      { id: 'C', color: '#B0E0E6', x: 150, y: 200, description: '' },
+      { id: 'D', color: '#B0E0E6', x: 300, y: 200, description: '' },
+      { id: 'E', color: '#B0E0E6', x: 250, y: 300, description: '' },
     ],
     links: [
       { source: 'A', target: 'B' },
@@ -71,11 +71,11 @@ const quests: Quest[] = [
   {
     name: 'Samareite',
     nodes: [
-      { id: 'A', color: '#B0E0E6', x: 100, y: 100 },
-      { id: 'B', color: '#B0E0E6', x: 200, y: 100 },
-      { id: 'C', color: '#B0E0E6', x: 150, y: 200 },
-      { id: 'D', color: '#B0E0E6', x: 300, y: 200 },
-      { id: 'E', color: '#B0E0E6', x: 250, y: 300 },
+      { id: 'A', color: '#B0E0E6', x: 100, y: 100, description: '' },
+      { id: 'B', color: '#B0E0E6', x: 200, y: 100, description: '' },
+      { id: 'C', color: '#B0E0E6', x: 150, y: 200, description: '' },
+      { id: 'D', color: '#B0E0E6', x: 300, y: 200, description: '' },
+      { id: 'E', color: '#B0E0E6', x: 250, y: 300, description: '' },
     ],
     links: [
       { source: 'A', target: 'E' },
@@ -149,10 +149,18 @@ const quests: Quest[] = [
 //   );
 // };
 
-const Details = () => {
+const Details = ({ stars }) => {
+  console.log(stars);
   return (
     <View style={styles.panel}>
-      <Text style={styles.panelText}>This is your swipe-up panel!</Text>
+      {stars
+        .filter((star) => star.selected)
+        .map((star) => (
+          <Text
+            key={star.id}
+            style={styles.panelText}
+          >{`ID: ${star.id} Description: ${star.description}`}</Text>
+        ))}
     </View>
   );
 };
@@ -238,7 +246,7 @@ const QuestConstellationScreen: React.FC<
           {renderLinks}
           {renderStars}
         </Svg>
-        {showDetails && <Details />}
+        {showDetails && <Details stars={stars} />}
         <Button title="Add Node" onPress={addNode} />
       </GestureRecognizer>
     </View>
