@@ -5,6 +5,21 @@ Find Your Way
 
 ### App Features
 
+
+- star shape should be a random polygon with some diamondicity to it
+- name of each star should be next to it 
+- pinch to zoom
+- button to manipulate window so current row is in the bottom middle
+- constellation layout should be automatic: each node goes in the row of max(node.children.row) + 1 (or current row if no children)
+- styling on selected node should be better: want a corona instead of a hard line
+- press on the node should bring up the node details panel from the side 
+- node details panel should tell you the parents and children 
+- node details panel should let you set parents / children
+- node details panel should let you change the name and description 
+- parents and children should be colored in some kind of way when a star is selected
+- connecting edges should be stronger when a star is selected
+
+
 - **Derived List**: Show a list derived from a JSON file
 - **LLM Integration**: Connect an LLM and have it decompose nodes into smaller dependencies/edit nodes
 - **Speech-to-Text Workflow**: Implement a speech-to-text to LLM workflow, so you can just tell the assistant what to do

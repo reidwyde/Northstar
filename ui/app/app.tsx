@@ -43,9 +43,19 @@ type DrawerParamList = Record<string, { questIdx: number }>;
 type QuestConstellationScreenProps<T extends keyof DrawerParamList> =
   DrawerScreenProps<DrawerParamList, T>;
 
+type Star = {
+  id: string;
+  name?: string;
+  description: string;
+  color: string;
+  x: number;
+  y: number;
+  selected?: boolean;
+};
+
 type Quest = {
   name: string;
-  nodes: any[];
+  nodes: Star[];
   links: any[];
 };
 
@@ -148,19 +158,93 @@ const quests: Quest[] = [
 //     </View>
 //   );
 // };
+//
+// const StarEditPanel = ({ stars }: { stars: Star[] }) => {
+//   console.log(stars);
+//   return (
+//     <View style={styles.panel}>
+//       {stars
+//         .filter((star) => star.selected)
+//         .map((star) => (
+//           <Text
+//             key={star.id}
+//             style={styles.panelText}
+//           >{`ID: ${star.id} Description: ${star.description}`}</Text>
+//         ))}
+//     </View>
+//   );
+// };
+//
 
-const Details = ({ stars }) => {
-  console.log(stars);
+const StarEditPanel = ({
+  stars,
+  setStars,
+}: {
+  stars: Star[];
+  setStars: (stars: Star[]) => void;
+}) => {
+  const [editingStar, setEditingStar] = useState<Star | null>(null);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+
+  const saveChanges = () => {
+    if (editingStar) {
+      setStars(
+        stars.map((star) =>
+          star.id === editingStar.id ? { ...star, name, description } : star,
+        ),
+      );
+      setEditingStar(null);
+    }
+  };
+
+  const completeTask = () => {
+    if (editingStar) {
+      setStars(
+        stars.map((star) =>
+          star.id === editingStar.id ? { ...star, completed: true } : star,
+        ),
+      );
+      setEditingStar(null);
+    }
+  };
+
   return (
     <View style={styles.panel}>
-      {stars
-        .filter((star) => star.selected)
-        .map((star) => (
-          <Text
-            key={star.id}
-            style={styles.panelText}
-          >{`ID: ${star.id} Description: ${star.description}`}</Text>
-        ))}
+      {!editingStar ? (
+        stars
+          .filter((star) => star.selected)
+          .map((star) => (
+            <TouchableOpacity
+              key={star.id}
+              onPress={() => setEditingStar(star)}
+            >
+              <Text style={styles.panelText}>
+                {`ID: ${star.id} Name: ${star.name || 'Unnamed'} Description: ${star.description}`}
+              </Text>
+            </TouchableOpacity>
+          ))
+      ) : (
+        <>
+          <TextInput
+            placeholder="Enter name"
+            value={name}
+            onChangeText={(text) => setName(text)}
+            style={[styles.panelText, { width: '100%' }]}
+          />
+          <TextInput
+            placeholder="Enter description"
+            value={description}
+            onChangeText={(text) => setDescription(text)}
+            style={[styles.panelText, { width: '100%' }]}
+          />
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Button title="Edit" onPress={() => setEditingStar(null)} />
+            <Button title="Complete" onPress={completeTask} />
+            <Button title="Save" onPress={saveChanges} />
+          </View>
+        </>
+      )}
     </View>
   );
 };
@@ -169,11 +253,11 @@ const QuestConstellationScreen: React.FC<
   QuestConstellationScreenProps<string>
 > = ({ route, navigation }) => {
   const { questIdx } = route.params || { questIdx: 0 };
-  const [stars, setStars] = useState(
+  const [stars, setStars] = useState<Star[]>(
     quests[questIdx].nodes.map((node) => ({ ...node, selected: false })),
   );
   const [links, setLinks] = useState(quests[questIdx].links);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showStarEditPanel, setShowStarEditPanel] = useState(false);
   const renderStars = stars.map((star, index) => (
     <Circle
       key={index}
@@ -202,6 +286,10 @@ const QuestConstellationScreen: React.FC<
     const sourceNode = stars.find((star) => star.id === link.source);
     const targetNode = stars.find((star) => star.id === link.target);
 
+    if (!sourceNode || !targetNode) {
+      return null;
+    }
+
     return (
       <Line
         key={index}
@@ -219,10 +307,10 @@ const QuestConstellationScreen: React.FC<
     let newQuestIdx = questIdx;
     switch (gestureName) {
       case SWIPE_UP:
-        setShowDetails(true);
+        setShowStarEditPanel(true);
         break;
       case SWIPE_DOWN:
-        setShowDetails(false);
+        setShowStarEditPanel(false);
         break;
       case SWIPE_LEFT:
         newQuestIdx = (questIdx - 1 + quests.length) % quests.length;
@@ -246,7 +334,9 @@ const QuestConstellationScreen: React.FC<
           {renderLinks}
           {renderStars}
         </Svg>
-        {showDetails && <Details stars={stars} />}
+        {showStarEditPanel && (
+          <StarEditPanel stars={stars} setStars={setStars} />
+        )}
         <Button title="Add Node" onPress={addNode} />
       </GestureRecognizer>
     </View>
