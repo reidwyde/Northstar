@@ -1,11 +1,10 @@
-# GraphToDo
-Productivity App
+# Northstar 
+Find Your Way 
 
 ## Features
 
 ### App Features
 
-- **Graph Todo**: Show a single list of tasks
 - **Derived List**: Show a list derived from a JSON file
 - **LLM Integration**: Connect an LLM and have it decompose nodes into smaller dependencies/edit nodes
 - **Speech-to-Text Workflow**: Implement a speech-to-text to LLM workflow, so you can just tell the assistant what to do
@@ -22,10 +21,9 @@ Productivity App
 
 ### Build Process
 
-- **Linter Setup**: Get a linter set up for code quality
+- **Apple Developer Account**: Get an Apple Developer account ($99)
 - **Real Build**: Make a real build so you can load it onto your phone
 - **Run without Dev Server**: Be able to run the app without the dev server (figure out the build pipeline)
-- **Apple Developer Account**: Get an Apple Developer account ($99)
 
 ### Resources
 
