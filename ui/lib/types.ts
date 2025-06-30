@@ -1,13 +1,16 @@
 import { DrawerScreenProps } from '@react-navigation/drawer';
 
-export type DrawerParamList = Record<string, { questIdx: number }>;
+export type DrawerParamList = Record<string, { questIdx: number }> & {
+  Waypoints: undefined;
+};
 export type QuestConstellationScreenProps<T extends keyof DrawerParamList> =
   DrawerScreenProps<DrawerParamList, T>;
 
 // The portable data
 export type Node = {
   id: string;
-  name?: string; // TODO make definite
+  northstarObjectID: string;
+  text?: string;
   description: string;
   color: string; // TODO remove
   x: number; // TODO remove
@@ -15,9 +18,10 @@ export type Node = {
 };
 
 // The data for visualization
-export type Star = {
+export type Waypoint = {
   id: string;
-  name?: string; // TODO make definite
+  northstarObjectID: string;
+  text: string;
   description: string;
   color: string;
   x: number;
@@ -25,12 +29,34 @@ export type Star = {
   selected: boolean;
   rank: number;
   column: number;
+  created: Date;
+  lastModified: Date;
+  tags: string[];
+  completed?: boolean;
+  blocks: string[]; // Array of waypoint IDs that this waypoint blocks
+  blockedBy: string[]; // Array of waypoint IDs that block this waypoint
 };
 
 export type Quest = {
+  id: string;
+  northstarObjectID: string;
   name: string;
   nodes: Node[];
   links: any[];
+  created: Date;
+  lastModified: Date;
 };
 
 export type DependencyRanks = { [key: string]: number };
+
+// Base type for all syncable objects
+export interface SyncableObject {
+  northstarObjectID: string;
+  lastModified: Date;
+  objectType: 'waypoint' | 'quest' | 'node' | 'tag';
+}
+
+// DynamoDB item structure
+export interface DynamoDBItem extends SyncableObject {
+  data: any; // The actual object data (Waypoint, Quest, etc.)
+}

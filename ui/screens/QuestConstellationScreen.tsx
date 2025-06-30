@@ -17,18 +17,18 @@ import {
 } from '@react-navigation/drawer';
 import {
   QuestConstellationScreenProps,
-  Star,
+  Waypoint,
   Quest,
   Node,
   DrawerParamList,
   DependencyRanks,
 } from '../lib/types';
-import { mapQuestToStars, getColumns, getDependencyRank } from '../lib/utils';
+import { mapQuestToWaypoints, getColumns, getDependencyRank } from '../lib/utils';
 
 import { quests } from '../data/quests';
 
 import ConstellationView from '../components/ConstellationView';
-import StarEditPanel from '../components/StarEditPanel';
+import WaypointEditPanel from '../components/WaypointEditPanel';
 
 const { width, height } = Dimensions.get('window');
 
@@ -76,17 +76,17 @@ const QuestConstellationScreen: React.FC<
 > = ({ route, navigation }) => {
   const { questIdx: initialQuestIdx } = route.params || { questIdx: 0 };
   const [currentQuestIdx, setCurrentQuestIdx] = useState(initialQuestIdx);
-  const [stars, setStars] = useState<Star[]>(
-    mapQuestToStars(quests[currentQuestIdx]),
+  const [waypoints, setWaypoints] = useState<Waypoint[]>(
+    mapQuestToWaypoints(quests[currentQuestIdx]),
   );
-  const [showStarEditPanel, setShowStarEditPanel] = useState(false);
+  const [showWaypointEditPanel, setShowWaypointEditPanel] = useState(false);
 
   const translateX = useRef(new Animated.Value(0)).current;
   const isTransitioning = useRef(false);
 
-  // Update stars when quest changes
+  // Update waypoints when quest changes
   useEffect(() => {
-    setStars(mapQuestToStars(quests[currentQuestIdx]));
+    setWaypoints(mapQuestToWaypoints(quests[currentQuestIdx]));
   }, [currentQuestIdx]);
 
   // Add this effect to update navigation when currentQuestIdx changes
@@ -166,7 +166,7 @@ const QuestConstellationScreen: React.FC<
         ],
       }}
     >
-      <ConstellationView quest={quest} stars={stars} setStars={setStars} />
+      <ConstellationView quest={quest} waypoints={waypoints} setWaypoints={setWaypoints} />
     </Animated.View>
   );
 
@@ -180,11 +180,11 @@ const QuestConstellationScreen: React.FC<
         {renderConstellation(quests[currentQuestIdx], 0)}
         {renderConstellation(quests[nextIdx], width)}
       </View>
-      {showStarEditPanel && <StarEditPanel stars={stars} setStars={setStars} />}
+      {showWaypointEditPanel && <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />}
       <Button title="Add Node" onPress={addNode} />
       <Button
         title="Toggle Edit Panel"
-        onPress={() => setShowStarEditPanel(!showStarEditPanel)}
+        onPress={() => setShowWaypointEditPanel(!showWaypointEditPanel)}
       />
     </View>
   );

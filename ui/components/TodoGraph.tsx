@@ -4,28 +4,25 @@ import VisNetwork, { Data } from 'react-native-vis-network';
 import Cytoscape from 'cytoscape';
 
 type GraphJson = {
-  nodes: any[], 
-  edges: any[],
+  nodes: any[];
+  edges: any[];
 };
 
-const TodoGraph = (
-  {
-    graphJson={nodes: [], edges: []}
-  }:{
-    graphJson: {
-      nodes: {
-        id: string;
-        label: string;
-        description?: string;
-      }[];
-      edges: {
-        from: string;
-        to: string;
-      }[];
-    }
-  }
-) => {
-
+const TodoGraph = ({
+  graphJson = { nodes: [], edges: [] },
+}: {
+  graphJson: {
+    nodes: {
+      id: string;
+      label: string;
+      description?: string;
+    }[];
+    edges: {
+      from: string;
+      to: string;
+    }[];
+  };
+}) => {
   const data: Data = {
     edges: [
       { from: '1', to: '3' },
@@ -59,7 +56,7 @@ const TodoGraph = (
 
   return (
     <>
-    <VisNetwork data={data} ref={visNetworkRef} />
+      <VisNetwork data={data} ref={visNetworkRef} />
     </>
   );
 };

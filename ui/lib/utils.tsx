@@ -2,7 +2,7 @@ import {
   Quest,
   DependencyRanks,
   QuestConstellationScreenProps,
-  Star,
+  Waypoint,
   Node,
   DrawerParamList,
 } from '../lib/types';
@@ -61,15 +61,21 @@ export const getColumns = (
   return columns;
 };
 
-export const mapQuestToStars = (quest: Quest): Star[] => {
+export const mapQuestToWaypoints = (quest: Quest): Waypoint[] => {
   const ranks = getDependencyRank(quest);
   const columns = getColumns(quest, ranks);
 
   return quest.nodes.map((node) => ({
     ...node,
-    name: node?.name ?? node.id,
+    text: node?.text ?? node.id,
     selected: false,
     rank: ranks[node.id],
     column: columns[node.id],
+    created: new Date(),
+    lastModified: new Date(),
+    tags: [],
+    blocks: [],
+    blockedBy: [],
+    northstarObjectID: node.northstarObjectID,
   }));
 };

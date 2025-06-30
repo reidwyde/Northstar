@@ -1,2 +1,13 @@
 .aider*
 **/node_modules/**
+
+# AWS sensitive files
+ui/AWS_SETUP.md
+ui/config/aws.config.ts
+
+# ESLint cache
+.eslintcache
+
+# Expo
+.expo/
+

@@ -1,0 +1,97 @@
+import React from 'react';
+import { View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { Waypoint } from '../lib/types';
+import { waypointStyles } from './WaypointsScreen.styles';
+
+interface WaypointItemProps {
+  item: Waypoint;
+  onDelete: (waypointId: string) => void;
+}
+
+export const WaypointItem: React.FC<WaypointItemProps> = ({ item, onDelete }) => (
+  <View style={waypointStyles.waypointItem}>
+    <View style={waypointStyles.waypointInfo}>
+      <Text style={waypointStyles.waypointText}>{item.text}</Text>
+      {item.description ? (
+        <Text style={waypointStyles.waypointDescription}>{item.description}</Text>
+      ) : null}
+      <Text style={waypointStyles.waypointDate}>
+        Created: {item.created.toLocaleDateString()}
+      </Text>
+      {item.lastModified.getTime() !== item.created.getTime() && (
+        <Text style={waypointStyles.waypointDate}>
+          Modified: {item.lastModified.toLocaleDateString()}
+        </Text>
+      )}
+      {item.tags.length > 0 && (
+        <Text style={waypointStyles.waypointDate}>
+          Tags: {item.tags.join(', ')}
+        </Text>
+      )}
+      {item.blocks.length > 0 && (
+        <Text style={waypointStyles.waypointDate}>
+          Blocks: {item.blocks.join(', ')}
+        </Text>
+      )}
+      {item.blockedBy.length > 0 && (
+        <Text style={waypointStyles.waypointDate}>
+          Blocked by: {item.blockedBy.join(', ')}
+        </Text>
+      )}
+    </View>
+    <TouchableOpacity
+      style={waypointStyles.deleteButton}
+      onPress={() => onDelete(item.id)}
+    >
+      <Text style={waypointStyles.deleteButtonText}>Delete</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+interface WaypointFormProps {
+  newWaypointText: string;
+  setNewWaypointText: (text: string) => void;
+  newWaypointDescription: string;
+  setNewWaypointDescription: (text: string) => void;
+  newWaypointTags: string;
+  setNewWaypointTags: (text: string) => void;
+  onAdd: () => void;
+}
+
+export const WaypointForm: React.FC<WaypointFormProps> = ({
+  newWaypointText,
+  setNewWaypointText,
+  newWaypointDescription,
+  setNewWaypointDescription,
+  newWaypointTags,
+  setNewWaypointTags,
+  onAdd,
+}) => (
+  <View style={waypointStyles.addContainer}>
+    <TextInput
+      style={waypointStyles.textInput}
+      placeholder="Waypoint text"
+      placeholderTextColor="#888"
+      value={newWaypointText}
+      onChangeText={setNewWaypointText}
+    />
+    <TextInput
+      style={waypointStyles.textInput}
+      placeholder="Description (optional)"
+      placeholderTextColor="#888"
+      value={newWaypointDescription}
+      onChangeText={setNewWaypointDescription}
+      multiline
+    />
+    <TextInput
+      style={waypointStyles.textInput}
+      placeholder="Tags (comma-separated, e.g., quest1, urgent, work)"
+      placeholderTextColor="#888"
+      value={newWaypointTags}
+      onChangeText={setNewWaypointTags}
+    />
+    <TouchableOpacity style={waypointStyles.addButton} onPress={onAdd}>
+      <Text style={waypointStyles.addButtonText}>Add Waypoint</Text>
+    </TouchableOpacity>
+  </View>
+);

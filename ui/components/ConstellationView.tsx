@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Quest } from '../lib/types';
+import { Waypoint, Quest } from '../lib/types';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { StyleSheet, Dimensions } from 'react-native';
 
@@ -46,72 +46,72 @@ const styles = StyleSheet.create({
 
 const ConstellationView = ({
   quest,
-  stars,
-  setStars,
+  waypoints,
+  setWaypoints,
 }: {
   quest: Quest;
-  stars: Star[];
-  setStars: (stars: Star[]) => void;
+  waypoints: Waypoint[];
+  setWaypoints: (waypoints: Waypoint[]) => void;
 }) => {
-  console.log(stars);
-  const starsWithPositions = stars.map((star) => {
+  console.log(waypoints);
+  const waypointsWithPositions = waypoints.map((waypoint) => {
     // Use rank for y-position and column for x-position
     // with some spacing between nodes
-    const x = star.column * 100 + 50;
-    const y = star.rank * 100 + 100;
+    const x = waypoint.column * 100 + 50;
+    const y = waypoint.rank * 100 + 100;
 
     return {
-      ...star,
+      ...waypoint,
       x,
       y,
     };
   });
 
-  const renderStars = starsWithPositions.map((star, index) => (
+  const renderWaypoints = waypointsWithPositions.map((waypoint, index) => (
     <React.Fragment key={index}>
       <Circle
-        cx={star.x}
-        cy={star.y}
+        cx={waypoint.x}
+        cy={waypoint.y}
         r={20}
-        fill={star.color}
-        stroke={star.selected ? 'white' : 'none'}
-        strokeWidth={star.selected ? 3 : 0}
+        fill={waypoint.color}
+        stroke={waypoint.selected ? 'white' : 'none'}
+        strokeWidth={waypoint.selected ? 3 : 0}
         onPress={() => {
-          setStars(
-            stars.map((starPrime) => ({
-              ...starPrime,
-              selected: star.id === starPrime.id,
+          setWaypoints(
+            waypoints.map((waypointPrime) => ({
+              ...waypointPrime,
+              selected: waypoint.id === waypointPrime.id,
             })),
           );
         }}
       />
       <SvgText
-        x={star.x + 25}
-        y={star.y - 25} // adjust above the circle
+        x={waypoint.x + 25}
+        y={waypoint.y - 25} // adjust above the circle
         fontSize="12"
         fill="white"
         textAnchor="middle"
       >
-        {`${star.id}`}
+        {`${waypoint.id}`}
       </SvgText>
       <SvgText
-        x={star.x}
-        y={star.y + 35} // adjust below the circle
+        x={waypoint.x}
+        y={waypoint.y + 35} // adjust below the circle
         fontSize="10"
         fill="lightgray"
         textAnchor="middle"
       >
-        {`(${star.rank}, ${star.column})`}
+        {`(${waypoint.rank}, ${waypoint.column})`}
       </SvgText>
     </React.Fragment>
   ));
 
   const renderLinks = quest.links.map((link, index) => {
-    const sourceNode = starsWithPositions.find(
-      (star) => star.id === link.source,
+    const sourceNode = waypointsWithPositions.find(
+      (waypoint) => waypoint.id === link.source,
     );
-    const targetNode = starsWithPositions.find(
-      (star) => star.id === link.target,
+    const targetNode = waypointsWithPositions.find(
+      (waypoint) => waypoint.id === link.target,
     );
 
     if (!sourceNode || !targetNode) return null;
@@ -132,7 +132,7 @@ const ConstellationView = ({
   return (
     <Svg width={width} height={height} style={styles.graph}>
       {renderLinks}
-      {renderStars}
+      {renderWaypoints}
     </Svg>
   );
 };

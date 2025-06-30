@@ -1,10 +1,16 @@
 # Northstar 
 Find Your Way 
 
-## Features
 
-### App Features
+Northstar is a synced productivity app for iPhone 
 
+
+
+
+
+### TODO 
+
+- sync with dynamodb
 
 - star shape should be a random polygon with some diamondicity to it
 - name of each star should be next to it 
