@@ -1,0 +1,162 @@
+InvokeFunction",
+				"lambda:PublishVersion",
+				"lambda:CreateAlias",
+				"lambda:UpdateAlias",
+				"lambda:DeleteAlias",
+				"lambda:GetAlias",
+				"lambda:ListAliases",
+				"lambda:ListVersionsByFunction",
+				"lambda:AddPermission",
+				"lambda:RemovePermission",
+				"lambda:GetPolicy",
+				"lambda:PutFunctionConcurrency",
+				"lambda:DeleteFunctionConcurrency",
+				"lambda:GetFunctionConcurrency",
+				"lambda:TagResource",
+				"lambda:UntagResource",
+				"lambda:ListTags"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"logs:CreateLogGroup",
+				"logs:CreateLogStream",
+				"logs:PutLogEvents",
+				"logs:DescribeLogGroups",
+				"logs:DescribeLogStreams"
+			],
+			"Resource": "arn:aws:logs:*:784814077659:*"
+		}
+	]
+}{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"SNS:GetSMSAttributes"
+			],
+			"Resource": "arn:aws:iam::784814077659:role/lambda-*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"SNS:Publish"
+			],
+			"Resource": "*"
+		}
+	]
+}
+
+
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"ecr:GetAuthorizationToken",
+				"ecr:DescribeRepositories"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"ecr:BatchCheckLayerAvailability",
+				"ecr:GetDownloadUrlForLayer",
+				"ecr:BatchGetImage",
+				"ecr:ListImages",
+				"ecr:DescribeImages",
+				"ecr:InitiateLayerUpload",
+				"ecr:UploadLayerPart",
+				"ecr:CompleteLayerUpload",
+				"ecr:PutImage"
+			],
+			"Resource": "arn:aws:ecr:us-east-2:784814077659:repository/northstar/push-notifications"
+		}
+	]
+}
+
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"iam:PassRole",
+				"iam:CreateRole"
+			],
+			"Resource": "arn:aws:iam::784814077659:role/lambda-*"
+		},
+		{
+			"Effect":
+
+
+      "Allow",
+			"Action": [
+				"iam:PutRolePolicy"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"lambda:CreateFunction",
+				"lambda:UpdateFunctionCode",
+				"lambda:UpdateFunctionConfiguration",
+				"lambda:DeleteFunction",
+				"lambda:GetFunction",
+				"lambda:GetFunctionConfiguration",
+				"lambda:InvokeFunction"
+			],
+			"Resource": [
+				"arn:aws:lambda:us-east-2:784814077659:function:northstar-*",
+				"arn:aws:lambda:us-east-2:784814077659:function:northstar-push-notifications"
+			]
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"lambda:CreateFunction",
+				"lambda:UpdateFunctionCode",
+				"lambda:UpdateFunctionConfiguration",
+				"lambda:DeleteFunction",
+				"lambda:GetFunction",
+				"lambda:GetFunctionConfiguration",
+				"lambda:ListFunctions",
+        "lambda:InvokeFunction",
+				"lambda:PublishVersion",
+				"lambda:CreateAlias",
+				"lambda:UpdateAlias",
+				"lambda:DeleteAlias",
+				"lambda:GetAlias",
+				"lambda:ListAliases",
+				"lambda:ListVersionsByFunction",
+				"lambda:AddPermission",
+				"lambda:RemovePermission",
+				"lambda:GetPolicy",
+				"lambda:PutFunctionConcurrency",
+				"lambda:DeleteFunctionConcurrency",
+				"lambda:GetFunctionConcurrency",
+				"lambda:TagResource",
+				"lambda:UntagResource",
+				"lambda:ListTags"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"logs:CreateLogGroup",
+				"logs:CreateLogStream",
+				"logs:PutLogEvents",
+				"logs:DescribeLogGroups",
+				"logs:DescribeLogStreams"
+			],
+			"Resource": "arn:aws:logs:*:784814077659:*"
+		}
+	]
+}
