@@ -4,9 +4,51 @@ import json
 import boto3
 from typing import Dict, Any
 import logging
+import os
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+
+def send_message():
+    # Initialize SNS client
+    sns = boto3.client('sns', region_name='us-east-2')
+    sns.set_sms_attributes(
+        attributes={
+            'DeliveryStatusLogging': 'true',
+            'DeliveryStatusSuccessSamplingRate': '100'
+        }
+    )
+
+    # Get phone number from environment
+    #phone_number = os.environ.get('PHONE_NUMBER')
+    phone_number = "+12148704733"
+    
+    if not phone_number:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'error': 'PHONE_NUMBER environment variable required'})
+        }
+    
+    # Read notification message
+    # try:
+    #     with open('notification.txt', 'r') as f:
+    #         message = f.read().strip()
+    # except FileNotFoundError:
+    #     message = "Your Northstar update is ready!"
+    
+    message = "this is a test message from Northstar"
+
+    # Send SMS
+    response = sns.publish(
+        PhoneNumber=phone_number,
+        Message=message,
+        Subject='Northstar Update'
+    )
+
+    return response
+
+
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -16,34 +58,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     - PHONE_NUMBER: Target phone number (e.g. +1234567890)
     """
     try:
-        # Initialize SNS client
-        sns = boto3.client('sns')
-        
-        # Get phone number from environment
-        import os
-        #phone_number = os.environ.get('PHONE_NUMBER')
-        phone_number = "+12148704733"
-        
-        if not phone_number:
-            return {
-                'statusCode': 400,
-                'body': json.dumps({'error': 'PHONE_NUMBER environment variable required'})
-            }
-        
-        # Read notification message
-        try:
-            with open('notification.txt', 'r') as f:
-                message = f.read().strip()
-        except FileNotFoundError:
-            message = "Your Northstar update is ready!"
-        
-        # Send SMS
-        response = sns.publish(
-            PhoneNumber=phone_number,
-            Message=message,
-            Subject='Northstar Update'
-        )
-
+        response = send_message()
         logger.info(f"response: {response}")
         
         logger.info(f"SMS sent successfully. MessageId: {response['MessageId']}")
