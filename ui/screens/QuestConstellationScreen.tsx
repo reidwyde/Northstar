@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
   },
   constellationContainer: {
     position: 'absolute',
-    width,
-    height,
+    maxWidth: '90%',
+    maxHeight: '100%',
   },
   graph: {
     flex: 1,
@@ -154,6 +154,7 @@ const QuestConstellationScreen: React.FC<
 
   const renderConstellation = (quest: Quest, offset: number) => (
     <Animated.View
+      id = 'animatedView'
       style={{
         ...styles.constellationContainer,
         transform: [
@@ -175,17 +176,68 @@ const QuestConstellationScreen: React.FC<
 
   return (
     <View style={styles.container}>
-      <View style={styles.swipeContainer} {...panResponder.panHandlers}>
+      {/* Add flex: 1 to wayPointView so it takes up available space above the panel */}
+      <View
+        id="wayPointView"
+        {...panResponder.panHandlers}
+          style={{
+                  flex: 1,
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  justifyContent: 'center',    // Center vertically
+                  alignItems: 'center',        // Center horizontally
+                }}
+      >
         {renderConstellation(quests[prevIdx], -width)}
         {renderConstellation(quests[currentQuestIdx], 0)}
         {renderConstellation(quests[nextIdx], width)}
       </View>
-      {showWaypointEditPanel && <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />}
-      <Button title="Add Node" onPress={addNode} />
-      <Button
-        title="Toggle Edit Panel"
-        onPress={() => setShowWaypointEditPanel(!showWaypointEditPanel)}
-      />
+
+      {showWaypointEditPanel && (
+        <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />
+      )}
+
+      {/* Panel stays at the bottom */}
+      <View
+        id="wayPointPanel"
+        style={{
+          marginBottom: 24,
+          borderWidth: 1,
+          borderColor: '#0a1a24',
+          borderRadius: 4,
+          width: '98%',
+          backgroundColor: '#183e54',
+          alignSelf: 'center',
+        }}
+      >
+        <View
+          style={{
+            width: '20%',
+            minWidth: 80,
+            margin: 24,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
+          <Button color="#225c6e" title="Add Node" onPress={addNode} />
+        </View>
+
+        <View
+          style={{
+            width: '20%',
+            minWidth: 80,
+            margin: 24,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
+          <Button
+            color="#225c6e"
+            title="Toggle Edit Panel"
+            onPress={() => setShowWaypointEditPanel(!showWaypointEditPanel)}
+          />
+        </View>
+      </View>
     </View>
   );
 };

@@ -70,7 +70,7 @@ export const WaypointForm: React.FC<WaypointFormProps> = ({
   <View style={waypointStyles.addContainer}>
     <TextInput
       style={waypointStyles.textInput}
-      placeholder="Waypoint text"
+      placeholder="Waypoint Title"
       placeholderTextColor="#888"
       value={newWaypointText}
       onChangeText={setNewWaypointText}
@@ -85,7 +85,7 @@ export const WaypointForm: React.FC<WaypointFormProps> = ({
     />
     <TextInput
       style={waypointStyles.textInput}
-      placeholder="Tags (comma-separated, e.g., quest1, urgent, work)"
+      placeholder="Tags (comma-separated) Ex: quest1, urgent, work"
       placeholderTextColor="#888"
       value={newWaypointTags}
       onChangeText={setNewWaypointTags}
