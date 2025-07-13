@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
-import { quests } from '../data/quests';
+import { DataService, Quest } from '../services/data.service';
 
 const styles = StyleSheet.create({
   container: {
@@ -76,8 +76,25 @@ const styles = StyleSheet.create({
 const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { navigation, state } = props;
   const [questsExpanded, setQuestsExpanded] = useState(false);
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const currentRouteName = state.routeNames[state.index];
+
+  useEffect(() => {
+    const loadQuests = async () => {
+      try {
+        const questsData = await DataService.getQuests();
+        setQuests(questsData);
+      } catch (error) {
+        console.error('Error loading quests in drawer:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadQuests();
+  }, []);
 
   const navigateToScreen = (screenName: string, params?: any) => {
     navigation.navigate(screenName, params);
@@ -122,25 +139,29 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           
           {questsExpanded && (
             <View>
-              {quests.map((quest, questIdx) => (
-                <TouchableOpacity
-                  key={quest.name}
-                  style={[
-                    styles.questItem,
-                    currentRouteName === quest.name && styles.activeQuestItem,
-                  ]}
-                  onPress={() => navigateToQuest(quest.name, questIdx)}
-                >
-                  <Text
+              {loading ? (
+                <Text style={styles.questItemText}>Loading quests...</Text>
+              ) : (
+                quests.map((quest, questIdx) => (
+                  <TouchableOpacity
+                    key={quest.id}
                     style={[
-                      styles.questItemText,
-                      currentRouteName === quest.name && styles.activeQuestItemText,
+                      styles.questItem,
+                      currentRouteName === quest.name && styles.activeQuestItem,
                     ]}
+                    onPress={() => navigateToQuest(quest.name, questIdx)}
                   >
-                    {quest.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.questItemText,
+                        currentRouteName === quest.name && styles.activeQuestItemText,
+                      ]}
+                    >
+                      {quest.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              )}
             </View>
           )}
         </View>

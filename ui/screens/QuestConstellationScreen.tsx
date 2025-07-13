@@ -25,7 +25,7 @@ import {
 } from '../lib/types';
 import { mapQuestToWaypoints, getColumns, getDependencyRank } from '../lib/utils';
 
-import { quests } from '../data/quests';
+import { DataService, Quest as DataQuest } from '../services/data.service';
 
 import ConstellationView from '../components/ConstellationView';
 import WaypointEditPanel from '../components/WaypointEditPanel';
@@ -77,27 +77,50 @@ const QuestConstellationScreen: React.FC<
 > = ({ route, navigation }) => {
   const { questIdx: initialQuestIdx } = route.params || { questIdx: 0 };
   const [currentQuestIdx, setCurrentQuestIdx] = useState(initialQuestIdx);
-  const [waypoints, setWaypoints] = useState<Waypoint[]>(
-    mapQuestToWaypoints(quests[currentQuestIdx]),
-  );
+  const [quests, setQuests] = useState<DataQuest[]>([]);
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [showWaypointEditPanel, setShowWaypointEditPanel] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const translateX = useRef(new Animated.Value(0)).current;
   const isTransitioning = useRef(false);
 
+  // Load quests on component mount
+  useEffect(() => {
+    const loadQuests = async () => {
+      try {
+        const questsData = await DataService.getQuests();
+        setQuests(questsData);
+        if (questsData.length > 0 && questsData[currentQuestIdx]) {
+          // For now, use empty waypoints since we need to update mapQuestToWaypoints
+          setWaypoints([]);
+        }
+      } catch (error) {
+        console.error('Error loading quests in constellation screen:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadQuests();
+  }, []);
+
   // Update waypoints when quest changes
   useEffect(() => {
-    setWaypoints(mapQuestToWaypoints(quests[currentQuestIdx]));
-  }, [currentQuestIdx]);
+    if (quests.length > 0 && quests[currentQuestIdx]) {
+      // For now, use empty waypoints since we need to update mapQuestToWaypoints
+      setWaypoints([]);
+    }
+  }, [currentQuestIdx, quests]);
 
   // Add this effect to update navigation when currentQuestIdx changes
   useEffect(() => {
-    if (currentQuestIdx !== initialQuestIdx) {
+    if (quests.length > 0 && currentQuestIdx !== initialQuestIdx && quests[currentQuestIdx]) {
       navigation.navigate(quests[currentQuestIdx].name, {
         questIdx: currentQuestIdx,
       });
     }
-  }, [currentQuestIdx, initialQuestIdx, navigation]);
+  }, [currentQuestIdx, initialQuestIdx, navigation, quests]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -178,6 +201,22 @@ const QuestConstellationScreen: React.FC<
   //     <ConstellationView quest={quest} waypoints={waypoints} setWaypoints={setWaypoints} />
   //   </View>
   // );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.panelText}>Loading quest...</Text>
+      </View>
+    );
+  }
+
+  if (quests.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.panelText}>No quests available</Text>
+      </View>
+    );
+  }
 
   const prevIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
   const nextIdx = (currentQuestIdx + 1) % quests.length;
