@@ -22,6 +22,7 @@ export const quests: Quest[] = [
       { id: 'north-D', northstarObjectID: 'node-d-static-id', color: '#B0E0E6', x: 300, y: 200, description: '' },
       { id: 'north-E', northstarObjectID: 'node-e-static-id', color: '#B0E0E6', x: 250, y: 300, description: '' },
     ],
+    //Dependency Details Exist at Wapoint Level, blocks, blocked by
     links: [
       { source: 'north-A', target: 'north-B' },
       { source: 'north-A', target: 'north-C' },

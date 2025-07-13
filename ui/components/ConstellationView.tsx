@@ -1,7 +1,7 @@
 import React from 'react';
 import { Waypoint, Quest } from '../lib/types';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -53,7 +53,7 @@ const ConstellationView = ({
   waypoints: Waypoint[];
   setWaypoints: (waypoints: Waypoint[]) => void;
 }) => {
-  console.log(waypoints);
+  console.log('constelation view' , waypoints);
   const waypointsWithPositions = waypoints.map((waypoint) => {
     // Use rank for y-position and column for x-position
     // with some spacing between nodes
@@ -130,10 +130,21 @@ const ConstellationView = ({
   });
 
   return (
-    <Svg width={width} height={height} style={styles.graph}>
+   <View style={styles.container}>
+    <Svg
+      width={'100%'}
+      height={'100%'}
+      style={{
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        display: 'flex',
+      }}
+    >
       {renderLinks}
       {renderWaypoints}
     </Svg>
+  </View>
   );
 };
 
