@@ -16,19 +16,23 @@
     "dynamo:view:waypoints": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-viewer.ts type waypoint",
     "dynamo:manage": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-manager.ts",
     "dynamo:clear": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-manager.ts clear",
-    "dynamo:migrate": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-manager.ts migrate"
+    "dynamo:migrate": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-manager.ts migrate",
+    "dynamo:test": "npx ts-node --project tsconfig.scripts.json scripts/test-dynamodb.ts"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.844.0",
+    "@aws-sdk/lib-dynamodb": "^3.844.0",
     "@expo/vector-icons": "^14.1.0",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/drawer": "^7.1.1",
     "@react-navigation/native": "^7.0.14",
     "@types/uuid": "^10.0.0",
-    "aws-sdk": "^2.1692.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
     "d3-force": "^3.0.0",
     "expo": "53",
     "expo-blur": "~14.1.4",
@@ -55,10 +59,12 @@
     "react-native-vis-network": "^2.0.0",
     "react-native-web": "^0.20.0",
     "react-native-webview": "13.13.5",
+    "stream-browserify": "^3.0.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@babel/plugin-transform-class-static-block": "^7.27.1",
     "@eslint/js": "^9.22.0",
     "@types/jest": "^29.5.12",
     "@types/react": "~19.0.10",

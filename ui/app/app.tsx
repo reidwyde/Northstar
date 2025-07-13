@@ -1,3 +1,12 @@
+// Import polyfills first for AWS SDK compatibility
+import 'react-native-get-random-values';
+import { Buffer } from 'buffer';
+
+// Make Buffer available globally
+if (typeof global !== 'undefined') {
+  global.Buffer = Buffer;
+}
+
 import React, { useEffect, useState } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { View, Text, StyleSheet } from 'react-native';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Waypoint, Quest } from '../lib/types';
+import { Waypoint, Quest } from '../services/data.service';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { StyleSheet, Dimensions, View } from 'react-native';
 
@@ -53,17 +53,20 @@ const ConstellationView = ({
   waypoints: Waypoint[];
   setWaypoints: (waypoints: Waypoint[]) => void;
 }) => {
-  console.log('constelation view' , waypoints);
-  const waypointsWithPositions = waypoints.map((waypoint) => {
-    // Use rank for y-position and column for x-position
-    // with some spacing between nodes
-    const x = waypoint.column * 100 + 50;
-    const y = waypoint.rank * 100 + 100;
+  console.log('constellation view', waypoints);
+  const waypointsWithPositions = waypoints.map((waypoint, index) => {
+    // Calculate positions based on index and quest layout
+    // Simple grid layout for now
+    const gridWidth = Math.ceil(Math.sqrt(waypoints.length));
+    const x = (index % gridWidth) * 120 + 60;
+    const y = Math.floor(index / gridWidth) * 120 + 100;
 
     return {
       ...waypoint,
       x,
       y,
+      color: waypoint.completed ? '#4CAF50' : '#2196F3', // Green if completed, blue otherwise
+      selected: false, // Default to not selected
     };
   });
 
@@ -77,22 +80,18 @@ const ConstellationView = ({
         stroke={waypoint.selected ? 'white' : 'none'}
         strokeWidth={waypoint.selected ? 3 : 0}
         onPress={() => {
-          setWaypoints(
-            waypoints.map((waypointPrime) => ({
-              ...waypointPrime,
-              selected: waypoint.id === waypointPrime.id,
-            })),
-          );
+          console.log('Waypoint selected:', waypoint.name);
+          // Note: Selection functionality temporarily disabled during migration
         }}
       />
       <SvgText
-        x={waypoint.x + 25}
+        x={waypoint.x}
         y={waypoint.y - 25} // adjust above the circle
         fontSize="12"
         fill="white"
         textAnchor="middle"
       >
-        {`${waypoint.id}`}
+        {waypoint.name}
       </SvgText>
       <SvgText
         x={waypoint.x}
@@ -101,33 +100,33 @@ const ConstellationView = ({
         fill="lightgray"
         textAnchor="middle"
       >
-        {`(${waypoint.rank}, ${waypoint.column})`}
+        {waypoint.completed ? 'Completed' : 'In Progress'}
       </SvgText>
     </React.Fragment>
   ));
 
-  const renderLinks = quest.links.map((link, index) => {
-    const sourceNode = waypointsWithPositions.find(
-      (waypoint) => waypoint.id === link.source,
-    );
-    const targetNode = waypointsWithPositions.find(
-      (waypoint) => waypoint.id === link.target,
-    );
+  // Render links based on waypoint unblocks relationships
+  const renderLinks = waypointsWithPositions.flatMap((waypoint, waypointIndex) => 
+    waypoint.unblocks.map((unblockedId, linkIndex) => {
+      const targetNode = waypointsWithPositions.find(
+        (wp) => wp.id === unblockedId,
+      );
 
-    if (!sourceNode || !targetNode) return null;
+      if (!targetNode) return null;
 
-    return (
-      <Line
-        key={index}
-        x1={sourceNode.x}
-        y1={sourceNode.y}
-        x2={targetNode.x}
-        y2={targetNode.y}
-        stroke="gray"
-        strokeWidth={2}
-      />
-    );
-  });
+      return (
+        <Line
+          key={`${waypointIndex}-${linkIndex}`}
+          x1={waypoint.x}
+          y1={waypoint.y}
+          x2={targetNode.x}
+          y2={targetNode.y}
+          stroke="gray"
+          strokeWidth={2}
+        />
+      );
+    }).filter(Boolean)
+  );
 
   return (
    <View style={styles.container}>

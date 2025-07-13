@@ -50,11 +50,16 @@ export const useWaypoints = () => {
     );
   };
 
-  const filteredWaypoints = waypoints.filter(waypoint =>
-    waypoint.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    waypoint.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    waypoint.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredWaypoints = waypoints.filter(waypoint => {
+    const query = searchQuery.toLowerCase();
+    const name = waypoint.name?.toLowerCase() || '';
+    const description = waypoint.description?.toLowerCase() || '';
+    const tags = waypoint.tags || [];
+    
+    return name.includes(query) ||
+           description.includes(query) ||
+           tags.some(tag => tag?.toLowerCase().includes(query));
+  });
 
   const addBlockingRelationship = (blockingId: string, blockedId: string) => {
     Alert.alert('Info', 'Blocking relationships are temporarily disabled during migration to DynamoDB');

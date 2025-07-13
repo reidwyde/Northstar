@@ -1,26 +1,38 @@
-import AWS from 'aws-sdk';
+import 'react-native-get-random-values'; // Required for crypto in React Native
+import { Buffer } from 'buffer';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { 
+  DynamoDBDocumentClient, 
+  PutCommand, 
+  GetCommand, 
+  DeleteCommand, 
+  ScanCommand, 
+  BatchWriteCommand 
+} from '@aws-sdk/lib-dynamodb';
 import { DynamoDBItem, SyncableObject } from '../lib/types';
 import { AWS_CONFIG, DYNAMODB_CONFIG } from '../config/aws.config';
 
-// Configure AWS
-AWS.config.update({
+// Make Buffer available globally for AWS SDK
+if (typeof global !== 'undefined') {
+  global.Buffer = Buffer;
+}
+
+// Create DynamoDB client
+const client = new DynamoDBClient({
   region: AWS_CONFIG.region,
-  accessKeyId: AWS_CONFIG.AWS_ACCESS_KEY_ID,
-  secretAccessKey: AWS_CONFIG.AWS_SECRET_ACCESS_KEY,
-  // Credentials loading order:
-  // 1. Explicit configuration (above)
-  // 2. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-  // 3. AWS CLI configuration (~/.aws/credentials)
-  // 4. IAM roles (if running on EC2 or other AWS services)
+  credentials: {
+    accessKeyId: AWS_CONFIG.AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_CONFIG.AWS_SECRET_ACCESS_KEY,
+  },
 });
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const docClient = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = DYNAMODB_CONFIG.tableName;
 
 export class DynamoDBService {
   
   static async putItem(item: DynamoDBItem): Promise<void> {
-    const params = {
+    const command = new PutCommand({
       TableName: TABLE_NAME,
       Item: {
         northstarObjectID: item.northstarObjectID,
@@ -28,10 +40,10 @@ export class DynamoDBService {
         lastModified: item.lastModified.toISOString(),
         data: item.data,
       },
-    };
+    });
 
     try {
-      await dynamodb.put(params).promise();
+      await docClient.send(command);
       console.log(`Successfully put item ${item.northstarObjectID}`);
     } catch (error) {
       console.error('Error putting item to DynamoDB:', error);
@@ -40,15 +52,15 @@ export class DynamoDBService {
   }
 
   static async getItem(northstarObjectID: string): Promise<DynamoDBItem | null> {
-    const params = {
+    const command = new GetCommand({
       TableName: TABLE_NAME,
       Key: {
         northstarObjectID,
       },
-    };
+    });
 
     try {
-      const result = await dynamodb.get(params).promise();
+      const result = await docClient.send(command);
       if (result.Item) {
         return {
           ...result.Item,
@@ -63,16 +75,16 @@ export class DynamoDBService {
   }
 
   static async getAllItemsByType(objectType: string): Promise<DynamoDBItem[]> {
-    const params = {
+    const command = new ScanCommand({
       TableName: TABLE_NAME,
       FilterExpression: 'objectType = :objectType',
       ExpressionAttributeValues: {
         ':objectType': objectType,
       },
-    };
+    });
 
     try {
-      const result = await dynamodb.scan(params).promise();
+      const result = await docClient.send(command);
       return (result.Items || []).map(item => ({
         ...item,
         lastModified: new Date(item.lastModified),
@@ -84,15 +96,15 @@ export class DynamoDBService {
   }
 
   static async deleteItem(northstarObjectID: string): Promise<void> {
-    const params = {
+    const command = new DeleteCommand({
       TableName: TABLE_NAME,
       Key: {
         northstarObjectID,
       },
-    };
+    });
 
     try {
-      await dynamodb.delete(params).promise();
+      await docClient.send(command);
       console.log(`Successfully deleted item ${northstarObjectID}`);
     } catch (error) {
       console.error('Error deleting item from DynamoDB:', error);
@@ -101,12 +113,12 @@ export class DynamoDBService {
   }
 
   static async getAllItems(): Promise<DynamoDBItem[]> {
-    const params = {
+    const command = new ScanCommand({
       TableName: TABLE_NAME,
-    };
+    });
 
     try {
-      const result = await dynamodb.scan(params).promise();
+      const result = await docClient.send(command);
       return (result.Items || []).map(item => ({
         ...item,
         lastModified: new Date(item.lastModified),
@@ -122,7 +134,7 @@ export class DynamoDBService {
     
     for (let i = 0; i < items.length; i += batchSize) {
       const batch = items.slice(i, i + batchSize);
-      const params = {
+      const command = new BatchWriteCommand({
         RequestItems: {
           [TABLE_NAME]: batch.map(item => ({
             PutRequest: {
@@ -135,10 +147,10 @@ export class DynamoDBService {
             },
           })),
         },
-      };
+      });
 
       try {
-        await dynamodb.batchWrite(params).promise();
+        await docClient.send(command);
         console.log(`Successfully batch put ${batch.length} items`);
       } catch (error) {
         console.error('Error batch putting items to DynamoDB:', error);

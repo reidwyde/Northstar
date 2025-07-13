@@ -17,15 +17,13 @@ import {
 } from '@react-navigation/drawer';
 import {
   QuestConstellationScreenProps,
-  Waypoint,
-  Quest,
   Node,
   DrawerParamList,
   DependencyRanks,
 } from '../lib/types';
 import { mapQuestToWaypoints, getColumns, getDependencyRank } from '../lib/utils';
 
-import { DataService, Quest as DataQuest } from '../services/data.service';
+import { DataService, Quest, Waypoint } from '../services/data.service';
 
 import ConstellationView from '../components/ConstellationView';
 import WaypointEditPanel from '../components/WaypointEditPanel';
@@ -77,7 +75,7 @@ const QuestConstellationScreen: React.FC<
 > = ({ route, navigation }) => {
   const { questIdx: initialQuestIdx } = route.params || { questIdx: 0 };
   const [currentQuestIdx, setCurrentQuestIdx] = useState(initialQuestIdx);
-  const [quests, setQuests] = useState<DataQuest[]>([]);
+  const [quests, setQuests] = useState<Quest[]>([]);
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [showWaypointEditPanel, setShowWaypointEditPanel] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -107,10 +105,19 @@ const QuestConstellationScreen: React.FC<
 
   // Update waypoints when quest changes
   useEffect(() => {
-    if (quests.length > 0 && quests[currentQuestIdx]) {
-      // For now, use empty waypoints since we need to update mapQuestToWaypoints
-      setWaypoints([]);
-    }
+    const loadWaypointsForQuest = async () => {
+      if (quests.length > 0 && quests[currentQuestIdx]) {
+        try {
+          const questWaypoints = await DataService.getWaypointsByQuestId(quests[currentQuestIdx].id);
+          setWaypoints(questWaypoints);
+        } catch (error) {
+          console.error('Error loading waypoints for quest:', error);
+          setWaypoints([]);
+        }
+      }
+    };
+
+    loadWaypointsForQuest();
   }, [currentQuestIdx, quests]);
 
   // Add this effect to update navigation when currentQuestIdx changes
