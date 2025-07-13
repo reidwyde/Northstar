@@ -53,7 +53,7 @@ export type DependencyRanks = { [key: string]: number };
 export interface SyncableObject {
   northstarObjectID: string;
   lastModified: Date;
-  objectType: 'waypoint' | 'quest' | 'node' | 'tag';
+  objectType: 'waypoint' | 'quest' | 'tag' | 'tagtype';
 }
 
 // DynamoDB item structure

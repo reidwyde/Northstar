@@ -9,7 +9,14 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "dynamo:view": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-viewer.ts",
+    "dynamo:view:all": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-viewer.ts all",
+    "dynamo:view:quests": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-viewer.ts type quest",
+    "dynamo:view:waypoints": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-viewer.ts type waypoint",
+    "dynamo:manage": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-manager.ts",
+    "dynamo:clear": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-manager.ts clear",
+    "dynamo:migrate": "npx ts-node --project tsconfig.scripts.json scripts/dynamo-manager.ts migrate"
   },
   "jest": {
     "preset": "jest-expo"
@@ -67,6 +74,7 @@
     "jest-expo": "~53.0.5",
     "prettier": "^3.5.3",
     "react-test-renderer": "19.0.0",
+    "ts-node": "^10.9.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.26.0"
   },
