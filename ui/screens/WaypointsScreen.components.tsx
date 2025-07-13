@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
-import { Waypoint } from '../lib/types';
+import { Waypoint } from '../services/data.service';
 import { waypointStyles } from './WaypointsScreen.styles';
 
 interface WaypointItemProps {
@@ -11,31 +11,26 @@ interface WaypointItemProps {
 export const WaypointItem: React.FC<WaypointItemProps> = ({ item, onDelete }) => (
   <View style={waypointStyles.waypointItem}>
     <View style={waypointStyles.waypointInfo}>
-      <Text style={waypointStyles.waypointText}>{item.text}</Text>
+      <Text style={waypointStyles.waypointText}>{item.name}</Text>
       {item.description ? (
         <Text style={waypointStyles.waypointDescription}>{item.description}</Text>
       ) : null}
       <Text style={waypointStyles.waypointDate}>
-        Created: {item.created.toLocaleDateString()}
+        Modified: {item.lastModified.toLocaleDateString()}
       </Text>
-      {item.lastModified.getTime() !== item.created.getTime() && (
-        <Text style={waypointStyles.waypointDate}>
-          Modified: {item.lastModified.toLocaleDateString()}
-        </Text>
-      )}
       {item.tags.length > 0 && (
         <Text style={waypointStyles.waypointDate}>
           Tags: {item.tags.join(', ')}
         </Text>
       )}
-      {item.blocks.length > 0 && (
+      {item.unblocks.length > 0 && (
         <Text style={waypointStyles.waypointDate}>
-          Blocks: {item.blocks.join(', ')}
+          Unblocks: {item.unblocks.join(', ')}
         </Text>
       )}
-      {item.blockedBy.length > 0 && (
+      {item.completed && (
         <Text style={waypointStyles.waypointDate}>
-          Blocked by: {item.blockedBy.join(', ')}
+          Status: Completed
         </Text>
       )}
     </View>
