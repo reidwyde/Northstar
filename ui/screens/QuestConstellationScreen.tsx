@@ -29,6 +29,7 @@ import { quests } from '../data/quests';
 
 import ConstellationView from '../components/ConstellationView';
 import WaypointEditPanel from '../components/WaypointEditPanel';
+import { FlatList } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -46,9 +47,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   constellationContainer: {
-    position: 'absolute',
-    width,
-    height,
+    position: 'relative',
+    width: '100%',
+    height: '100%',
   },
   graph: {
     flex: 1,
@@ -154,6 +155,7 @@ const QuestConstellationScreen: React.FC<
 
   const renderConstellation = (quest: Quest, offset: number) => (
     <Animated.View
+      id = 'animatedView'
       style={{
         ...styles.constellationContainer,
         transform: [
@@ -170,22 +172,113 @@ const QuestConstellationScreen: React.FC<
     </Animated.View>
   );
 
+  //   const renderConstellation = (quest: Quest, offset: number) => (
+  //   <View
+  //   >
+  //     <ConstellationView quest={quest} waypoints={waypoints} setWaypoints={setWaypoints} />
+  //   </View>
+  // );
+
   const prevIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
   const nextIdx = (currentQuestIdx + 1) % quests.length;
-
+{console.log('quests', quests)}
   return (
     <View style={styles.container}>
-      <View style={styles.swipeContainer} {...panResponder.panHandlers}>
+      {/* Add flex: 1 to wayPointView so it takes up available space above the panel */}
+      <View
+        id="wayPointView"
+        {...panResponder.panHandlers}
+          style={{
+                  flex: 1,
+                  width: '100%',
+                  height: '100%',
+                  justifyContent: 'center',    // Center vertically
+                  alignItems: 'center',  
+                }}
+      >
+        
         {renderConstellation(quests[prevIdx], -width)}
         {renderConstellation(quests[currentQuestIdx], 0)}
         {renderConstellation(quests[nextIdx], width)}
       </View>
-      {showWaypointEditPanel && <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />}
-      <Button title="Add Node" onPress={addNode} />
-      <Button
-        title="Toggle Edit Panel"
-        onPress={() => setShowWaypointEditPanel(!showWaypointEditPanel)}
+
+          {/* Horizontally scrollable constellation views */}
+    {/* <View
+      id="wayPointView"
+      style={{
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <FlatList
+        data={
+          quests
+        }
+        keyExtractor={(_, idx) => idx.toString()}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={true}
+        renderItem={({ item, index }) =>
+          renderConstellation(
+            item,
+            width // offset: -width, 0, width
+          )
+        }
+        style={{ flex: 1, width: '100%' }}
+        contentContainerStyle={{
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       />
+    </View> */}
+
+      {showWaypointEditPanel && (
+        <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />
+      )}
+
+      {/* Panel stays at the bottom */}
+      <View
+        id="wayPointPanel"
+        style={{
+          marginBottom: 24,
+          borderWidth: 1,
+          borderColor: '#0a1a24',
+          borderRadius: 4,
+          width: '98%',
+          backgroundColor: '#183e54',
+          alignSelf: 'center',
+        }}
+      >
+        <View
+          style={{
+            width: '20%',
+            minWidth: 80,
+            margin: 24,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
+          <Button color="#225c6e" title="Add Node" onPress={addNode} />
+        </View>
+
+        <View
+          style={{
+            width: '20%',
+            minWidth: 80,
+            margin: 24,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
+          <Button
+            color="#225c6e"
+            title="Toggle Edit Panel"
+            onPress={() => setShowWaypointEditPanel(!showWaypointEditPanel)}
+          />
+        </View>
+      </View>
     </View>
   );
 };
