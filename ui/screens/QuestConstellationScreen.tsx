@@ -20,10 +20,12 @@ import {
   Node,
   DrawerParamList,
   DependencyRanks,
+  Quest,
+  Waypoint,
 } from '../lib/types';
 import { mapQuestToWaypoints, getColumns, getDependencyRank } from '../lib/utils';
 
-import { DataService, Quest, Waypoint } from '../services/data.service';
+import { DataService } from '../services/data.service';
 
 import ConstellationView from '../components/ConstellationView';
 import WaypointEditPanel from '../components/WaypointEditPanel';
@@ -179,8 +181,8 @@ const QuestConstellationScreen: React.FC<
     }),
   ).current;
 
-  const addNode = () => {
-    console.log('todo add node');
+  const addWaypoint = () => {
+    console.log('todo add waypoint');
   };
 
   const renderConstellation = (quest: Quest, offset: number) => (
@@ -306,7 +308,7 @@ const QuestConstellationScreen: React.FC<
             marginRight: 'auto',
           }}
         >
-          <Button color="#225c6e" title="Add Node" onPress={addNode} />
+          <Button color="#225c6e" title="Add Waypoint" onPress={addWaypoint} />
         </View>
 
         <View

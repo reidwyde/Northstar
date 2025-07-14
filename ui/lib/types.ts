@@ -17,37 +17,62 @@ export type Node = {
   y: number; // TODO remove
 };
 
-// The data for visualization
-export type Waypoint = {
-  id: string;
-  northstarObjectID: string;
-  text: string;
-  description: string;
-  color: string;
-  x: number;
-  y: number;
-  selected: boolean;
-  rank: number;
-  column: number;
-  created: Date;
-  lastModified: Date;
-  tags: string[];
-  completed?: boolean;
-  blocks: string[]; // Array of waypoint IDs that this waypoint blocks
-  blockedBy: string[]; // Array of waypoint IDs that block this waypoint
-};
-
-export type Quest = {
+// Unified Waypoint type - combines DynamoDB data with UI properties
+export interface Waypoint {
   id: string;
   northstarObjectID: string;
   name: string;
-  nodes: Node[];
-  links: any[];
-  created: Date;
+  description: string;
+  questIds: string[];
+  unblocks: string[];
+  tags: string[];
+  completed: boolean;
   lastModified: Date;
-};
+  // UI-specific properties (computed dynamically)
+  selected?: boolean;
+  // Visual properties (set by UI components)
+  x?: number;
+  y?: number;
+  color?: string;
+}
+
+// Unified Quest type - combines DynamoDB data with UI properties
+export interface Quest {
+  id: string;
+  northstarObjectID: string;
+  name: string;
+  type: NorthstarObjectType;
+  lastModified: Date;
+  // UI-specific properties for teammate's link rendering (deprecated - use waypoint.unblocks)
+  nodes?: Node[];
+  links?: any[];
+  created?: Date;
+}
 
 export type DependencyRanks = { [key: string]: number };
+
+// Layout algorithm output types
+export interface WaypointPosition {
+  waypointId: string;
+  x: number;
+  y: number;
+  rank: number;
+  column: number;
+}
+
+export interface WaypointLink {
+  sourceId: string;
+  targetId: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+export interface ConstellationLayout {
+  positions: { [waypointId: string]: WaypointPosition };
+  links: WaypointLink[];
+}
 
 // Object type enum for consistency
 export type NorthstarObjectType = 'Quest' | 'Waypoint' | 'Tag' | 'TagType';
@@ -59,25 +84,7 @@ export interface SyncableObject {
   objectType: NorthstarObjectType;
 }
 
-// Data service interfaces for DynamoDB objects
-export interface QuestData {
-  id: string;
-  name: string;
-  type: NorthstarObjectType;
-  lastModified: Date;
-}
-
-export interface WaypointData {
-  id: string;
-  questIds: string[];
-  name: string;
-  description: string;
-  unblocks: string[];
-  tags: string[];
-  completed: boolean;
-  lastModified: Date;
-}
-
+// Tag interfaces for DynamoDB objects
 export interface TagTypeData {
   id: string;
   name: string;

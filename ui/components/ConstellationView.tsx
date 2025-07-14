@@ -1,5 +1,6 @@
 import React from 'react';
-import { Waypoint, Quest } from '../services/data.service';
+import { Waypoint, Quest } from '../lib/types';
+import { simpleRankAndCol } from '../lib/utils';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { StyleSheet, Dimensions, View } from 'react-native';
 
@@ -54,19 +55,27 @@ const ConstellationView = ({
   setWaypoints: (waypoints: Waypoint[]) => void;
 }) => {
   console.log('constellation view', waypoints);
-  const waypointsWithPositions = waypoints.map((waypoint, index) => {
-    // Calculate positions based on index and quest layout
-    // Simple grid layout for now
-    const gridWidth = Math.ceil(Math.sqrt(waypoints.length));
-    const x = (index % gridWidth) * 120 + 60;
-    const y = Math.floor(index / gridWidth) * 120 + 100;
-
+  
+  // Calculate layout using the simpleRankAndCol algorithm
+  const layout = simpleRankAndCol(waypoints);
+  
+  const waypointsWithPositions = waypoints.map((waypoint) => {
+    const position = layout.positions[waypoint.id];
+    if (!position) {
+      console.warn(`No position found for waypoint ${waypoint.id}`);
+      return {
+        ...waypoint,
+        x: 0,
+        y: 0,
+        color: waypoint.completed ? '#4CAF50' : '#2196F3',
+      };
+    }
+    
     return {
       ...waypoint,
-      x,
-      y,
+      x: position.x,
+      y: position.y,
       color: waypoint.completed ? '#4CAF50' : '#2196F3', // Green if completed, blue otherwise
-      selected: false, // Default to not selected
     };
   });
 
@@ -80,44 +89,47 @@ const ConstellationView = ({
         stroke={waypoint.selected ? 'white' : 'none'}
         strokeWidth={waypoint.selected ? 3 : 0}
         onPress={() => {
-          console.log('Waypoint selected:', waypoint.name);
-          // Note: Selection functionality temporarily disabled during migration
+          setWaypoints(
+            waypoints.map((waypointPrime) => ({
+              ...waypointPrime,
+              selected: waypoint.id === waypointPrime.id,
+            })),
+          );
         }}
       />
       <SvgText
-        x={waypoint.x}
+        x={waypoint.x + 25}
         y={waypoint.y - 25} // adjust above the circle
         fontSize="12"
         fill="white"
         textAnchor="middle"
       >
-        {waypoint.name}
+        {`${waypoint.name}`}
+      </SvgText>
+      <SvgText
+        x={waypoint.x}
+        y={waypoint.y + 35} // adjust below the circle
+        fontSize="10"
+        fill="lightgray"
+        textAnchor="middle"
+      >
+        {`(${layout.positions[waypoint.id]?.rank || 0}, ${layout.positions[waypoint.id]?.column || 0})`}
       </SvgText>
     </React.Fragment>
   ));
 
-  // Render links based on waypoint unblocks relationships
-  const renderLinks = waypointsWithPositions.flatMap((waypoint, waypointIndex) => 
-    waypoint.unblocks.map((unblockedId, linkIndex) => {
-      const targetNode = waypointsWithPositions.find(
-        (wp) => wp.id === unblockedId,
-      );
-
-      if (!targetNode) return null;
-
-      return (
-        <Line
-          key={`${waypointIndex}-${linkIndex}`}
-          x1={waypoint.x}
-          y1={waypoint.y}
-          x2={targetNode.x}
-          y2={targetNode.y}
-          stroke="gray"
-          strokeWidth={2}
-        />
-      );
-    }).filter(Boolean)
-  );
+  // Render links based on calculated layout
+  const renderLinks = layout.links.map((link, index) => (
+    <Line
+      key={`${link.sourceId}-${link.targetId}-${index}`}
+      x1={link.x1}
+      y1={link.y1}
+      x2={link.x2}
+      y2={link.y2}
+      stroke="gray"
+      strokeWidth={2}
+    />
+  ));
 
   return (
    <View style={styles.container}>

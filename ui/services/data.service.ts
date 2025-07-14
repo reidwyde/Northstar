@@ -1,16 +1,16 @@
 import { DynamoDBService } from './dynamodb.service';
-import { DynamoDBItem, NorthstarObjectType, QuestData, WaypointData, TagTypeData, TagData } from '../lib/types';
+import { DynamoDBItem, NorthstarObjectType, Quest, Waypoint, TagTypeData, TagData } from '../lib/types';
 
 export class DataService {
-  private static questsCache: QuestData[] | null = null;
-  private static waypointsCache: WaypointData[] | null = null;
+  private static questsCache: Quest[] | null = null;
+  private static waypointsCache: Waypoint[] | null = null;
   private static tagTypesCache: TagTypeData[] | null = null;
   private static tagsCache: TagData[] | null = null;
 
   /**
    * Load all quests from DynamoDB
    */
-  static async getQuests(): Promise<QuestData[]> {
+  static async getQuests(): Promise<Quest[]> {
     if (this.questsCache) {
       return this.questsCache;
     }
@@ -19,6 +19,7 @@ export class DataService {
       const items = await DynamoDBService.getAllItemsByType('Quest');
       this.questsCache = items.map(item => ({
         id: item.data.id,
+        northstarObjectID: item.northstarObjectID,
         name: item.data.name,
         type: item.data.type as NorthstarObjectType,
         lastModified: new Date(item.lastModified),
@@ -33,7 +34,7 @@ export class DataService {
   /**
    * Load all waypoints from DynamoDB
    */
-  static async getWaypoints(): Promise<WaypointData[]> {
+  static async getWaypoints(): Promise<Waypoint[]> {
     if (this.waypointsCache) {
       return this.waypointsCache;
     }
@@ -42,9 +43,10 @@ export class DataService {
       const items = await DynamoDBService.getAllItemsByType('Waypoint');
       this.waypointsCache = items.map(item => ({
         id: item.data.id,
-        questIds: item.data.questIds || [],
+        northstarObjectID: item.northstarObjectID,
         name: item.data.name,
         description: item.data.description || '',
+        questIds: item.data.questIds || [],
         unblocks: item.data.unblocks || [],
         tags: item.data.tags || [],
         completed: item.data.completed || false,
@@ -107,7 +109,7 @@ export class DataService {
   /**
    * Get waypoints for a specific quest
    */
-  static async getWaypointsByQuestId(questId: string): Promise<WaypointData[]> {
+  static async getWaypointsByQuestId(questId: string): Promise<Waypoint[]> {
     const waypoints = await this.getWaypoints();
     return waypoints.filter(waypoint => waypoint.questIds.includes(questId));
   }
@@ -115,7 +117,7 @@ export class DataService {
   /**
    * Get a specific quest by ID
    */
-  static async getQuestById(questId: string): Promise<QuestData | null> {
+  static async getQuestById(questId: string): Promise<Quest | null> {
     const quests = await this.getQuests();
     return quests.find(quest => quest.id === questId) || null;
   }
