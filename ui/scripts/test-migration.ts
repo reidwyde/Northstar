@@ -52,7 +52,7 @@ async function testMigrationWithLastModified() {
           id: quest.id,
           name: quest.name,
           type: quest.type,
-          lastModified: quest.lastModified,
+          lastModified: quest.lastModified.toISOString(),
         }
       });
     }
@@ -66,7 +66,7 @@ async function testMigrationWithLastModified() {
           id: tagType.id,
           name: tagType.name,
           type: tagType.type,
-          lastModified: tagType.lastModified,
+          lastModified: tagType.lastModified.toISOString(),
         }
       });
     }
@@ -81,7 +81,7 @@ async function testMigrationWithLastModified() {
           name: tag.name,
           type: tag.type,
           tagTypeId: tag.tagTypeId,
-          lastModified: tag.lastModified,
+          lastModified: tag.lastModified.toISOString(),
         }
       });
     }
@@ -99,7 +99,8 @@ async function testMigrationWithLastModified() {
           unblocks: waypoint.unblocks,
           tags: waypoint.tags,
           completed: waypoint.completed,
-          lastModified: waypoint.lastModified,
+          type: 'Waypoint',
+          lastModified: waypoint.lastModified.toISOString(),
         }
       });
     }

@@ -93,15 +93,6 @@ const ConstellationView = ({
       >
         {waypoint.name}
       </SvgText>
-      <SvgText
-        x={waypoint.x}
-        y={waypoint.y + 35} // adjust below the circle
-        fontSize="10"
-        fill="lightgray"
-        textAnchor="middle"
-      >
-        {waypoint.completed ? 'Completed' : 'In Progress'}
-      </SvgText>
     </React.Fragment>
   ));
 

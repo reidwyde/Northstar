@@ -31,11 +31,12 @@ class DynamoViewer {
         console.log(`📋 ${type.toUpperCase()}S (${typeItems.length}):`);
         typeItems.forEach(item => {
           console.log(`  🔸 ${item.northstarObjectID}`);
+          console.log(`     Object Type: ${item.objectType}`);
           console.log(`     Last Modified: ${item.lastModified.toISOString()}`);
           if (item.data.name) {
             console.log(`     Name: ${item.data.name}`);
           }
-          console.log(`     Data: ${JSON.stringify(item.data, null, 6).slice(0, 200)}...`);
+          console.log(`     Data: ${JSON.stringify(item.data, null, 6)}`);
           console.log('');
         });
       });
