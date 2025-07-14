@@ -49,11 +49,48 @@ export type Quest = {
 
 export type DependencyRanks = { [key: string]: number };
 
+// Object type enum for consistency
+export type NorthstarObjectType = 'Quest' | 'Waypoint' | 'Tag' | 'TagType';
+
 // Base type for all syncable objects
 export interface SyncableObject {
   northstarObjectID: string;
   lastModified: Date;
-  objectType: 'waypoint' | 'quest' | 'tag' | 'tagtype';
+  objectType: NorthstarObjectType;
+}
+
+// Data service interfaces for DynamoDB objects
+export interface QuestData {
+  id: string;
+  name: string;
+  type: NorthstarObjectType;
+  lastModified: Date;
+}
+
+export interface WaypointData {
+  id: string;
+  questIds: string[];
+  name: string;
+  description: string;
+  unblocks: string[];
+  tags: string[];
+  completed: boolean;
+  lastModified: Date;
+}
+
+export interface TagTypeData {
+  id: string;
+  name: string;
+  type: NorthstarObjectType;
+  lastModified: Date;
+}
+
+export interface TagData {
+  id: string;
+  name: string;
+  type: NorthstarObjectType;
+  tagTypeId: string;
+  lastModified: Date;
 }
 
 // DynamoDB item structure

@@ -1,6 +1,6 @@
 #!/usr/bin/env npx ts-node
 
-import { DynamoDBService } from '../services/dynamodb.service';
+import { DataService } from '../services/data.service';
 import { DynamoDBItem } from '../lib/types';
 
 class DynamoViewer {
@@ -8,7 +8,7 @@ class DynamoViewer {
     console.log('🔍 Fetching all data from DynamoDB...\n');
     
     try {
-      const items = await DynamoDBService.getAllItems();
+      const items = await DataService.getAllItems();
       
       if (items.length === 0) {
         console.log('📭 No items found in DynamoDB table');
@@ -49,7 +49,7 @@ class DynamoViewer {
     console.log(`🔍 Fetching ${objectType}s from DynamoDB...\n`);
     
     try {
-      const items = await DynamoDBService.getAllItemsByType(objectType);
+      const items = await DataService.getAllItemsByType(objectType);
       
       if (items.length === 0) {
         console.log(`📭 No ${objectType}s found`);
@@ -74,7 +74,7 @@ class DynamoViewer {
     console.log(`🔍 Fetching item ${northstarObjectID} from DynamoDB...\n`);
     
     try {
-      const item = await DynamoDBService.getItem(northstarObjectID);
+      const item = await DataService.getItem(northstarObjectID);
       
       if (!item) {
         console.log(`📭 Item ${northstarObjectID} not found`);
@@ -103,7 +103,7 @@ switch (command) {
     break;
   case 'type':
     if (!arg) {
-      console.log('❌ Please specify object type: quest, waypoint, node, or tag');
+      console.log('❌ Please specify object type: Quest, Waypoint, Tag, or TagType');
       process.exit(1);
     }
     DynamoViewer.viewByType(arg);
@@ -124,12 +124,12 @@ Usage:
 
 Commands:
   all                    - View all data in the table
-  type <objectType>      - View all items of a specific type (quest, waypoint, node, tag)
+  type <objectType>      - View all items of a specific type (Quest, Waypoint, Tag, TagType)
   item <northstarObjectID> - View a specific item by ID
 
 Examples:
   npx ts-node scripts/dynamo-viewer.ts all
-  npx ts-node scripts/dynamo-viewer.ts type quest
+  npx ts-node scripts/dynamo-viewer.ts type Quest
   npx ts-node scripts/dynamo-viewer.ts item quest-1
     `);
 }

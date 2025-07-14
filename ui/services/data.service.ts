@@ -1,59 +1,22 @@
 import { DynamoDBService } from './dynamodb.service';
-import { DynamoDBItem } from '../lib/types';
-
-// Define the type for object types
-export type NorthstarObjectType = 'Quest' | 'Waypoint' | 'Tag' | 'TagType';
-
-// Define the interfaces for our data types
-export interface Quest {
-  id: string;
-  name: string;
-  type: NorthstarObjectType;
-  lastModified: Date;
-}
-
-export interface Waypoint {
-  id: string;
-  questIds: string[];
-  name: string;
-  description: string;
-  unblocks: string[];
-  tags: string[];
-  completed: boolean;
-  lastModified: Date;
-}
-
-export interface TagType {
-  id: string;
-  name: string;
-  type: NorthstarObjectType;
-  lastModified: Date;
-}
-
-export interface Tag {
-  id: string;
-  name: string;
-  type: NorthstarObjectType;
-  tagTypeId: string;
-  lastModified: Date;
-}
+import { DynamoDBItem, NorthstarObjectType, QuestData, WaypointData, TagTypeData, TagData } from '../lib/types';
 
 export class DataService {
-  private static questsCache: Quest[] | null = null;
-  private static waypointsCache: Waypoint[] | null = null;
-  private static tagTypesCache: TagType[] | null = null;
-  private static tagsCache: Tag[] | null = null;
+  private static questsCache: QuestData[] | null = null;
+  private static waypointsCache: WaypointData[] | null = null;
+  private static tagTypesCache: TagTypeData[] | null = null;
+  private static tagsCache: TagData[] | null = null;
 
   /**
    * Load all quests from DynamoDB
    */
-  static async getQuests(): Promise<Quest[]> {
+  static async getQuests(): Promise<QuestData[]> {
     if (this.questsCache) {
       return this.questsCache;
     }
 
     try {
-      const items = await DynamoDBService.getAllItemsByType('quest');
+      const items = await DynamoDBService.getAllItemsByType('Quest');
       this.questsCache = items.map(item => ({
         id: item.data.id,
         name: item.data.name,
@@ -70,13 +33,13 @@ export class DataService {
   /**
    * Load all waypoints from DynamoDB
    */
-  static async getWaypoints(): Promise<Waypoint[]> {
+  static async getWaypoints(): Promise<WaypointData[]> {
     if (this.waypointsCache) {
       return this.waypointsCache;
     }
 
     try {
-      const items = await DynamoDBService.getAllItemsByType('waypoint');
+      const items = await DynamoDBService.getAllItemsByType('Waypoint');
       this.waypointsCache = items.map(item => ({
         id: item.data.id,
         questIds: item.data.questIds || [],
@@ -97,13 +60,13 @@ export class DataService {
   /**
    * Load all tag types from DynamoDB
    */
-  static async getTagTypes(): Promise<TagType[]> {
+  static async getTagTypes(): Promise<TagTypeData[]> {
     if (this.tagTypesCache) {
       return this.tagTypesCache;
     }
 
     try {
-      const items = await DynamoDBService.getAllItemsByType('tagtype');
+      const items = await DynamoDBService.getAllItemsByType('TagType');
       this.tagTypesCache = items.map(item => ({
         id: item.data.id,
         name: item.data.name,
@@ -120,13 +83,13 @@ export class DataService {
   /**
    * Load all tags from DynamoDB
    */
-  static async getTags(): Promise<Tag[]> {
+  static async getTags(): Promise<TagData[]> {
     if (this.tagsCache) {
       return this.tagsCache;
     }
 
     try {
-      const items = await DynamoDBService.getAllItemsByType('tag');
+      const items = await DynamoDBService.getAllItemsByType('Tag');
       this.tagsCache = items.map(item => ({
         id: item.data.id,
         name: item.data.name,
@@ -144,7 +107,7 @@ export class DataService {
   /**
    * Get waypoints for a specific quest
    */
-  static async getWaypointsByQuestId(questId: string): Promise<Waypoint[]> {
+  static async getWaypointsByQuestId(questId: string): Promise<WaypointData[]> {
     const waypoints = await this.getWaypoints();
     return waypoints.filter(waypoint => waypoint.questIds.includes(questId));
   }
@@ -152,7 +115,7 @@ export class DataService {
   /**
    * Get a specific quest by ID
    */
-  static async getQuestById(questId: string): Promise<Quest | null> {
+  static async getQuestById(questId: string): Promise<QuestData | null> {
     const quests = await this.getQuests();
     return quests.find(quest => quest.id === questId) || null;
   }
@@ -177,5 +140,57 @@ export class DataService {
       this.getTagTypes(),
       this.getTags(),
     ]);
+  }
+
+  // DynamoDB operations (inherited from DynamoDBService)
+  static async putItem(item: DynamoDBItem): Promise<void> {
+    await DynamoDBService.putItem(item);
+    // Clear relevant cache after update
+    this.clearCacheForObjectType(item.objectType);
+  }
+
+  static async getItem(northstarObjectID: string): Promise<DynamoDBItem | null> {
+    return await DynamoDBService.getItem(northstarObjectID);
+  }
+
+  static async deleteItem(northstarObjectID: string): Promise<void> {
+    // Get the item first to know what cache to clear
+    const item = await DynamoDBService.getItem(northstarObjectID);
+    await DynamoDBService.deleteItem(northstarObjectID);
+    
+    if (item) {
+      this.clearCacheForObjectType(item.objectType);
+    }
+  }
+
+  static async getAllItems(): Promise<DynamoDBItem[]> {
+    return await DynamoDBService.getAllItems();
+  }
+
+  static async batchPutItems(items: DynamoDBItem[]): Promise<void> {
+    await DynamoDBService.batchPutItems(items);
+    // Clear all caches after batch update
+    this.clearCache();
+  }
+
+  static async getAllItemsByType(objectType: string): Promise<DynamoDBItem[]> {
+    return await DynamoDBService.getAllItemsByType(objectType);
+  }
+
+  private static clearCacheForObjectType(objectType: NorthstarObjectType): void {
+    switch (objectType) {
+      case 'Quest':
+        this.questsCache = null;
+        break;
+      case 'Waypoint':
+        this.waypointsCache = null;
+        break;
+      case 'TagType':
+        this.tagTypesCache = null;
+        break;
+      case 'Tag':
+        this.tagsCache = null;
+        break;
+    }
   }
 }

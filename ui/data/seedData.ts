@@ -2,13 +2,13 @@ export const quests = [
   {
     id: 'a7f8b3e2-9d14-4c8a-b7e3-2f6d8a9c1e5b',
     name: 'northstar-frontend',
-    type: 'quest',
+    type: 'Quest',
     lastModified: new Date('2025-01-13T17:00:00.000Z')
   },
   {
     id: 'e4b7c9f1-3a8d-42e6-9f7b-8c5a2d1e4f3a', 
     name: 'northstar-backend',
-    type: 'quest',
+    type: 'Quest',
     lastModified: new Date('2025-01-13T17:30:00.000Z')
   }
 ];
@@ -17,7 +17,7 @@ export const tagTypes = [
   {
     id: '9f3a8b7c-2e5d-4a1f-8b9c-7e4a2d5f8b1c',
     name: 'location',
-    type: 'tagType',
+    type: 'TagType',
     lastModified: new Date('2025-01-13T16:00:00.000Z')
   }
 ];
@@ -26,7 +26,7 @@ export const tags = [
   {
     id: '5d8a3f9b-7c2e-4b6a-9f3d-8c1e5a7b4f2d',
     name: 'home',
-    type: 'tag',
+    type: 'Tag',
     tagTypeId: '9f3a8b7c-2e5d-4a1f-8b9c-7e4a2d5f8b1c',
     lastModified: new Date('2025-01-13T16:30:00.000Z')
   }

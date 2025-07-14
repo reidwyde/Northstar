@@ -1,6 +1,6 @@
 #!/usr/bin/env npx ts-node
 
-import { DynamoDBService } from '../services/dynamodb.service';
+import { DataService } from '../services/data.service';
 import { DynamoDBItem } from '../lib/types';
 
 class DynamoManager {
@@ -8,7 +8,7 @@ class DynamoManager {
     console.log('🗑️  Clearing all data from DynamoDB table...\n');
     
     try {
-      const items = await DynamoDBService.getAllItems();
+      const items = await DataService.getAllItems();
       
       if (items.length === 0) {
         console.log('📭 Table is already empty');
@@ -18,7 +18,7 @@ class DynamoManager {
       console.log(`🔄 Deleting ${items.length} items...`);
       
       for (const item of items) {
-        await DynamoDBService.deleteItem(item.northstarObjectID);
+        await DataService.deleteItem(item.northstarObjectID);
         console.log(`   ✅ Deleted ${item.northstarObjectID}`);
       }
       
@@ -40,7 +40,7 @@ class DynamoManager {
       for (const quest of quests) {
         itemsToInsert.push({
           northstarObjectID: quest.id,
-          objectType: 'quest',
+          objectType: 'Quest',
           lastModified: quest.lastModified,
           data: {
             id: quest.id,
@@ -55,7 +55,7 @@ class DynamoManager {
       for (const tagType of tagTypes) {
         itemsToInsert.push({
           northstarObjectID: tagType.id,
-          objectType: 'tagtype',
+          objectType: 'TagType',
           lastModified: tagType.lastModified,
           data: {
             id: tagType.id,
@@ -70,7 +70,7 @@ class DynamoManager {
       for (const tag of tags) {
         itemsToInsert.push({
           northstarObjectID: tag.id,
-          objectType: 'tag',
+          objectType: 'Tag',
           lastModified: tag.lastModified,
           data: {
             id: tag.id,
@@ -86,7 +86,7 @@ class DynamoManager {
       for (const waypoint of waypoints) {
         itemsToInsert.push({
           northstarObjectID: waypoint.id,
-          objectType: 'waypoint',
+          objectType: 'Waypoint',
           lastModified: waypoint.lastModified,
           data: {
             id: waypoint.id,
@@ -103,7 +103,7 @@ class DynamoManager {
 
       console.log(`🔄 Inserting ${itemsToInsert.length} items...`);
       
-      await DynamoDBService.batchPutItems(itemsToInsert);
+      await DataService.batchPutItems(itemsToInsert);
       
       console.log('🎉 Local data migrated successfully!');
       console.log(`   📊 Total items inserted: ${itemsToInsert.length}`);
@@ -121,14 +121,14 @@ class DynamoManager {
     console.log(`🗑️  Deleting item ${northstarObjectID}...\n`);
     
     try {
-      const item = await DynamoDBService.getItem(northstarObjectID);
+      const item = await DataService.getItem(northstarObjectID);
       
       if (!item) {
         console.log(`📭 Item ${northstarObjectID} not found`);
         return;
       }
 
-      await DynamoDBService.deleteItem(northstarObjectID);
+      await DataService.deleteItem(northstarObjectID);
       console.log(`✅ Item ${northstarObjectID} deleted successfully`);
       
     } catch (error) {
@@ -140,7 +140,7 @@ class DynamoManager {
     console.log(`✏️  Updating item ${northstarObjectID}...\n`);
     
     try {
-      const existingItem = await DynamoDBService.getItem(northstarObjectID);
+      const existingItem = await DataService.getItem(northstarObjectID);
       
       if (!existingItem) {
         console.log(`📭 Item ${northstarObjectID} not found`);
@@ -153,7 +153,7 @@ class DynamoManager {
         data: { ...existingItem.data, ...newData }
       };
 
-      await DynamoDBService.putItem(updatedItem);
+      await DataService.putItem(updatedItem);
       console.log(`✅ Item ${northstarObjectID} updated successfully`);
       
     } catch (error) {
@@ -169,7 +169,7 @@ class DynamoManager {
     try {
       const questItem: DynamoDBItem = {
         northstarObjectID: questId,
-        objectType: 'quest',
+        objectType: 'Quest',
         lastModified: new Date(),
         data: {
           id: questId,
@@ -180,7 +180,7 @@ class DynamoManager {
         }
       };
 
-      await DynamoDBService.putItem(questItem);
+      await DataService.putItem(questItem);
       console.log(`✅ Quest "${name}" created with ID: ${questId}`);
       
     } catch (error) {
