@@ -78,8 +78,23 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const [questsExpanded, setQuestsExpanded] = useState(false);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [, forceUpdate] = useState({});
   
   const currentRouteName = state.routeNames[state.index];
+  const currentRoute = state.routes[state.index];
+  const currentQuestIdx = currentRoute?.params?.questIdx;
+  
+  // Debug drawer highlighting
+  console.log('Drawer render - Current route:', currentRouteName, 'Quest idx:', currentQuestIdx);
+
+  // Add navigation listener to force re-render when route changes
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('state', () => {
+      // Force component to re-render when navigation state changes
+      forceUpdate({});
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     const loadQuests = async () => {
@@ -101,6 +116,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   };
 
   const navigateToQuest = (questName: string, questIdx: number) => {
+    console.log('Drawer navigation to quest:', questName, 'idx:', questIdx);
     navigation.navigate(questName, { questIdx });
   };
 
@@ -142,25 +158,30 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
               {loading ? (
                 <Text style={styles.questItemText}>Loading quests...</Text>
               ) : (
-                quests.map((quest, questIdx) => (
-                  <TouchableOpacity
-                    key={quest.id}
-                    style={[
-                      styles.questItem,
-                      currentRouteName === quest.name && styles.activeQuestItem,
-                    ]}
-                    onPress={() => navigateToQuest(quest.name, questIdx)}
-                  >
-                    <Text
+                quests.map((quest, questIdx) => {
+                  // Check if this quest is active by comparing the route name only
+                  // since questIdx in params might not match array index
+                  const isActive = currentRouteName === quest.name;
+                  return (
+                    <TouchableOpacity
+                      key={quest.id}
                       style={[
-                        styles.questItemText,
-                        currentRouteName === quest.name && styles.activeQuestItemText,
+                        styles.questItem,
+                        isActive && styles.activeQuestItem,
                       ]}
+                      onPress={() => navigateToQuest(quest.name, questIdx)}
                     >
-                      {quest.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))
+                      <Text
+                        style={[
+                          styles.questItemText,
+                          isActive && styles.activeQuestItemText,
+                        ]}
+                      >
+                        {quest.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
               )}
             </View>
           )}
