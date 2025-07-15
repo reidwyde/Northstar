@@ -87,7 +87,6 @@ const ConstellationView = ({
   waypoints: Waypoint[];
   setWaypoints: (waypoints: Waypoint[]) => void;
 }) => {
-  console.log('constellation view', waypoints);
 
   // Calculate layout using screen-aware algorithm
   // Leave space at bottom for the control panel (about 1/4 of screen)

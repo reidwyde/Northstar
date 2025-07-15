@@ -124,9 +124,11 @@ const QuestConstellationScreen: React.FC<
 
   // Update navigation title when quest changes
   useEffect(() => {
-    if (quests.length > 0 && quests[currentQuestIdx]) {
+    console.log('nav', quests.length,quests[currentQuestIdx])
+    if (quests.length > 0 && quests[currentQuestIdx].name) {
+      console.log('name',quests[currentQuestIdx].name)
       navigation.setOptions({
-        title: quests[currentQuestIdx].name,
+        title: quests[currentQuestIdx]?.name,
       });
     }
   }, [currentQuestIdx, quests, navigation]);
@@ -222,12 +224,6 @@ const QuestConstellationScreen: React.FC<
     </Animated.View>
   );
 
-  //   const renderConstellation = (quest: Quest, offset: number) => (
-  //   <View
-  //   >
-  //     <ConstellationView quest={quest} waypoints={waypoints} setWaypoints={setWaypoints} />
-  //   </View>
-  // );
 
   if (loading) {
     return (
@@ -247,64 +243,27 @@ const QuestConstellationScreen: React.FC<
 
   const prevIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
   const nextIdx = (currentQuestIdx + 1) % quests.length;
-{console.log('quests', quests)}
   return (
     <View style={styles.container}>
-      {/* Add flex: 1 to wayPointView so it takes up available space above the panel */}
       <View
         id="wayPointView"
         {...panResponder.panHandlers}
           style={{
-                  flex: 1,
+                  flex: 1, //so it takes up available space above the panel
                   width: '100%',
                   height: '100%',
-                  justifyContent: 'center',    // Center vertically
+                  justifyContent: 'center',    
                   alignItems: 'center',  
                 }}
-      >
-        
+      >     
         {renderConstellation(quests[prevIdx], -width)}
         {renderConstellation(quests[currentQuestIdx], 0)}
         {renderConstellation(quests[nextIdx], width)}
       </View>
-
-          {/* Horizontally scrollable constellation views */}
-    {/* <View
-      id="wayPointView"
-      style={{
-        flex: 1,
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <FlatList
-        data={
-          quests
-        }
-        keyExtractor={(_, idx) => idx.toString()}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={true}
-        renderItem={({ item, index }) =>
-          renderConstellation(
-            item,
-            width // offset: -width, 0, width
-          )
-        }
-        style={{ flex: 1, width: '100%' }}
-        contentContainerStyle={{
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      />
-    </View> */}
-
       {showWaypointEditPanel && (
         <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />
       )}
 
-      {/* Panel stays at the bottom */}
       <View
         id="wayPointPanel"
         style={{
