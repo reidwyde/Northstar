@@ -1,20 +1,15 @@
-import AWS from 'aws-sdk';
+import * as AWS from 'aws-sdk';
 import { DynamoDBItem, SyncableObject } from '../lib/types';
 import { AWS_CONFIG, DYNAMODB_CONFIG } from '../config/aws.config';
 
-// Configure AWS
+// Configure AWS SDK
 AWS.config.update({
   region: AWS_CONFIG.region,
   accessKeyId: AWS_CONFIG.AWS_ACCESS_KEY_ID,
   secretAccessKey: AWS_CONFIG.AWS_SECRET_ACCESS_KEY,
-  // Credentials loading order:
-  // 1. Explicit configuration (above)
-  // 2. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-  // 3. AWS CLI configuration (~/.aws/credentials)
-  // 4. IAM roles (if running on EC2 or other AWS services)
 });
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const docClient = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = DYNAMODB_CONFIG.tableName;
 
 export class DynamoDBService {
@@ -31,7 +26,7 @@ export class DynamoDBService {
     };
 
     try {
-      await dynamodb.put(params).promise();
+      await docClient.put(params).promise();
       console.log(`Successfully put item ${item.northstarObjectID}`);
     } catch (error) {
       console.error('Error putting item to DynamoDB:', error);
@@ -48,7 +43,7 @@ export class DynamoDBService {
     };
 
     try {
-      const result = await dynamodb.get(params).promise();
+      const result = await docClient.get(params).promise();
       if (result.Item) {
         return {
           ...result.Item,
@@ -72,7 +67,7 @@ export class DynamoDBService {
     };
 
     try {
-      const result = await dynamodb.scan(params).promise();
+      const result = await docClient.scan(params).promise();
       return (result.Items || []).map(item => ({
         ...item,
         lastModified: new Date(item.lastModified),
@@ -92,7 +87,7 @@ export class DynamoDBService {
     };
 
     try {
-      await dynamodb.delete(params).promise();
+      await docClient.delete(params).promise();
       console.log(`Successfully deleted item ${northstarObjectID}`);
     } catch (error) {
       console.error('Error deleting item from DynamoDB:', error);
@@ -106,7 +101,7 @@ export class DynamoDBService {
     };
 
     try {
-      const result = await dynamodb.scan(params).promise();
+      const result = await docClient.scan(params).promise();
       return (result.Items || []).map(item => ({
         ...item,
         lastModified: new Date(item.lastModified),
@@ -138,7 +133,7 @@ export class DynamoDBService {
       };
 
       try {
-        await dynamodb.batchWrite(params).promise();
+        await docClient.batchWrite(params).promise();
         console.log(`Successfully batch put ${batch.length} items`);
       } catch (error) {
         console.error('Error batch putting items to DynamoDB:', error);
