@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -17,15 +17,15 @@ import {
 } from '@react-navigation/drawer';
 import {
   QuestConstellationScreenProps,
-  Waypoint,
-  Quest,
   Node,
   DrawerParamList,
   DependencyRanks,
+  Quest,
+  Waypoint,
 } from '../lib/types';
 import { mapQuestToWaypoints, getColumns, getDependencyRank } from '../lib/utils';
 
-import { quests } from '../data/quests';
+import { DataService } from '../services/data.service';
 
 import ConstellationView from '../components/ConstellationView';
 import WaypointEditPanel from '../components/WaypointEditPanel';
@@ -75,33 +75,72 @@ const styles = StyleSheet.create({
 const QuestConstellationScreen: React.FC<
   QuestConstellationScreenProps<string>
 > = ({ route, navigation }) => {
-  const { questIdx: initialQuestIdx } = route.params || { questIdx: 0 };
-  const [currentQuestIdx, setCurrentQuestIdx] = useState(initialQuestIdx);
-  const [waypoints, setWaypoints] = useState<Waypoint[]>(
-    mapQuestToWaypoints(quests[currentQuestIdx]),
-  );
+  // Use route params as single source of truth for current quest
+  const currentQuestIdx = route.params?.questIdx || 0;
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [showWaypointEditPanel, setShowWaypointEditPanel] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const translateX = useRef(new Animated.Value(0)).current;
   const isTransitioning = useRef(false);
 
+  // Load quests on component mount
+  useEffect(() => {
+    const loadQuests = async () => {
+      try {
+        console.log('Loading quests...');
+        const questsData = await DataService.getQuests();
+        console.log('Loaded quests:', questsData.length, questsData.map(q => q.name));
+        setQuests(questsData);
+        if (questsData.length > 0 && questsData[currentQuestIdx]) {
+          // For now, use empty waypoints since we need to update mapQuestToWaypoints
+          setWaypoints([]);
+        }
+      } catch (error) {
+        console.error('Error loading quests in constellation screen:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadQuests();
+  }, []); // Only load once on mount
+
   // Update waypoints when quest changes
   useEffect(() => {
-    setWaypoints(mapQuestToWaypoints(quests[currentQuestIdx]));
-  }, [currentQuestIdx]);
+    const loadWaypointsForQuest = async () => {
+      if (quests.length > 0 && quests[currentQuestIdx]) {
+        try {
+          const questWaypoints = await DataService.getWaypointsByQuestId(quests[currentQuestIdx].id);
+          setWaypoints(questWaypoints);
+        } catch (error) {
+          console.error('Error loading waypoints for quest:', error);
+          setWaypoints([]);
+        }
+      }
+    };
 
-  // Add this effect to update navigation when currentQuestIdx changes
+    loadWaypointsForQuest();
+  }, [currentQuestIdx, quests]);
+
+  // Update navigation title when quest changes
   useEffect(() => {
-    if (currentQuestIdx !== initialQuestIdx) {
-      navigation.navigate(quests[currentQuestIdx].name, {
-        questIdx: currentQuestIdx,
+    if (quests.length > 0 && quests[currentQuestIdx]) {
+      navigation.setOptions({
+        title: quests[currentQuestIdx].name,
       });
     }
-  }, [currentQuestIdx, initialQuestIdx, navigation]);
+  }, [currentQuestIdx, quests, navigation]);
 
-  const panResponder = useRef(
+  // Create PanResponder that updates with current quest data
+  const panResponder = useMemo(() => 
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // Only capture horizontal swipes, let vertical and small movements through
+        return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 10;
+      },
       onPanResponderMove: (_, gestureState) => {
         // Only allow movement if not currently transitioning
         if (!isTransitioning.current) {
@@ -111,35 +150,48 @@ const QuestConstellationScreen: React.FC<
       onPanResponderRelease: (_, gestureState) => {
         if (isTransitioning.current) return;
 
+        console.log('Swipe detected:', gestureState.dx, 'threshold:', width * 0.3);
+        console.log('Current quest idx:', currentQuestIdx, 'Total quests:', quests.length);
+        console.log('Quest names:', quests.map(q => q.name));
+        
+        // Don't try to navigate if no quests are loaded
+        if (quests.length === 0) {
+          console.log('No quests loaded, ignoring swipe');
+          return;
+        }
+
         const threshold = width * 0.3; // Swipe 30% to trigger transition
         if (gestureState.dx > threshold) {
-          // Swipe right
+          // Swipe right - go to previous quest
           isTransitioning.current = true;
           const newIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
+          console.log('Swiping right to quest:', newIdx, quests[newIdx]?.name);
           Animated.timing(translateX, {
             toValue: width,
             duration: 300,
             useNativeDriver: true,
           }).start(() => {
-            setCurrentQuestIdx(newIdx);
+            navigation.setParams({ questIdx: newIdx });
             translateX.setValue(0);
             isTransitioning.current = false;
           });
         } else if (gestureState.dx < -threshold) {
-          // Swipe left
+          // Swipe left - go to next quest
           isTransitioning.current = true;
           const newIdx = (currentQuestIdx + 1) % quests.length;
+          console.log('Swiping left to quest:', newIdx, quests[newIdx]?.name);
           Animated.timing(translateX, {
             toValue: -width,
             duration: 300,
             useNativeDriver: true,
           }).start(() => {
-            setCurrentQuestIdx(newIdx);
+            navigation.setParams({ questIdx: newIdx });
             translateX.setValue(0);
             isTransitioning.current = false;
           });
         } else {
           // Snap back if swipe not far enough
+          console.log('Swipe not far enough, snapping back');
           Animated.spring(translateX, {
             toValue: 0,
             useNativeDriver: true,
@@ -147,10 +199,10 @@ const QuestConstellationScreen: React.FC<
         }
       },
     }),
-  ).current;
+  [currentQuestIdx, quests, navigation, width, translateX]); // Recreate when dependencies change
 
-  const addNode = () => {
-    console.log('todo add node');
+  const addWaypoint = () => {
+    console.log('todo add waypoint');
   };
 
   const renderConstellation = (quest: Quest, offset: number) => (
@@ -178,6 +230,22 @@ const QuestConstellationScreen: React.FC<
   //     <ConstellationView quest={quest} waypoints={waypoints} setWaypoints={setWaypoints} />
   //   </View>
   // );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.panelText}>Loading quest...</Text>
+      </View>
+    );
+  }
+
+  if (quests.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.panelText}>No quests available</Text>
+      </View>
+    );
+  }
 
   const prevIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
   const nextIdx = (currentQuestIdx + 1) % quests.length;
@@ -253,30 +321,22 @@ const QuestConstellationScreen: React.FC<
       >
         <View
           style={{
-            width: '20%',
-            minWidth: 80,
-            margin: 24,
-            marginLeft: 'auto',
-            marginRight: 'auto',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            gap: 15,
+            margin: 12,
           }}
         >
-          <Button color="#225c6e" title="Add Node" onPress={addNode} />
-        </View>
-
-        <View
-          style={{
-            width: '20%',
-            minWidth: 80,
-            margin: 24,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        >
-          <Button
-            color="#225c6e"
-            title="Toggle Edit Panel"
-            onPress={() => setShowWaypointEditPanel(!showWaypointEditPanel)}
-          />
+          <View style={{ width: 80 }}>
+            <Button color="#225c6e" title="Add" onPress={addWaypoint} />
+          </View>
+          <View style={{ width: 80 }}>
+            <Button
+              color="#225c6e"
+              title="Edit"
+              onPress={() => setShowWaypointEditPanel(!showWaypointEditPanel)}
+            />
+          </View>
         </View>
       </View>
     </View>

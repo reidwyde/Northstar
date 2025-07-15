@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
 } from '@react-navigation/drawer';
-import { quests } from '../data/quests';
+import { DataService, Quest } from '../services/data.service';
 
 const styles = StyleSheet.create({
   container: {
@@ -76,14 +76,47 @@ const styles = StyleSheet.create({
 const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const { navigation, state } = props;
   const [questsExpanded, setQuestsExpanded] = useState(false);
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [, forceUpdate] = useState({});
   
   const currentRouteName = state.routeNames[state.index];
+  const currentRoute = state.routes[state.index];
+  const currentQuestIdx = currentRoute?.params?.questIdx;
+  
+  // Debug drawer highlighting
+  console.log('Drawer render - Current route:', currentRouteName, 'Quest idx:', currentQuestIdx);
+
+  // Add navigation listener to force re-render when route changes
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('state', () => {
+      // Force component to re-render when navigation state changes
+      forceUpdate({});
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const loadQuests = async () => {
+      try {
+        const questsData = await DataService.getQuests();
+        setQuests(questsData);
+      } catch (error) {
+        console.error('Error loading quests in drawer:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadQuests();
+  }, []);
 
   const navigateToScreen = (screenName: string, params?: any) => {
     navigation.navigate(screenName, params);
   };
 
   const navigateToQuest = (questName: string, questIdx: number) => {
+    console.log('Drawer navigation to quest:', questName, 'idx:', questIdx);
     navigation.navigate(questName, { questIdx });
   };
 
@@ -122,25 +155,34 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           
           {questsExpanded && (
             <View>
-              {quests.map((quest, questIdx) => (
-                <TouchableOpacity
-                  key={quest.name}
-                  style={[
-                    styles.questItem,
-                    currentRouteName === quest.name && styles.activeQuestItem,
-                  ]}
-                  onPress={() => navigateToQuest(quest.name, questIdx)}
-                >
-                  <Text
-                    style={[
-                      styles.questItemText,
-                      currentRouteName === quest.name && styles.activeQuestItemText,
-                    ]}
-                  >
-                    {quest.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {loading ? (
+                <Text style={styles.questItemText}>Loading quests...</Text>
+              ) : (
+                quests.map((quest, questIdx) => {
+                  // Check if this quest is active by comparing the route name only
+                  // since questIdx in params might not match array index
+                  const isActive = currentRouteName === quest.name;
+                  return (
+                    <TouchableOpacity
+                      key={quest.id}
+                      style={[
+                        styles.questItem,
+                        isActive && styles.activeQuestItem,
+                      ]}
+                      onPress={() => navigateToQuest(quest.name, questIdx)}
+                    >
+                      <Text
+                        style={[
+                          styles.questItemText,
+                          isActive && styles.activeQuestItemText,
+                        ]}
+                      >
+                        {quest.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </View>
           )}
         </View>

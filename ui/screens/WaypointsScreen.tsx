@@ -19,6 +19,7 @@ const WaypointsScreen: React.FC = () => {
     addWaypoint,
     deleteWaypoint,
     clearAllWaypoints,
+    loading,
   } = useWaypoints();
 
   const [newWaypointText, setNewWaypointText] = useState('');
@@ -37,7 +38,8 @@ const WaypointsScreen: React.FC = () => {
   const EmptyState = () => (
     <View style={waypointStyles.emptyState}>
       <Text style={waypointStyles.emptyText}>
-        {searchQuery ? 'No waypoints match your search' : 'No waypoints yet. Add one above!'}
+        {loading ? 'Loading waypoints...' : 
+         searchQuery ? 'No waypoints match your search' : 'No waypoints yet. Add one above!'}
       </Text>
     </View>
   );
