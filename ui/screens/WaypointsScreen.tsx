@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useWaypoints } from './WaypointsScreen.hooks';
-import { WaypointItem, WaypointForm } from './WaypointsScreen.components';
+import { WaypointItem, WaypointForm } from './WaypointsForm';
 import { waypointStyles } from './WaypointsScreen.styles';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import ErrorMessage from '../components/ErrorMessage'; // Add this import
 
 const WaypointsScreen: React.FC = () => {
   const {
@@ -25,6 +26,7 @@ const WaypointsScreen: React.FC = () => {
   const [newWaypointText, setNewWaypointText] = useState('');
   const [newWaypointDescription, setNewWaypointDescription] = useState('');
   const [newWaypointTags, setNewWaypointTags] = useState('');
+  const [error, setError] = useState<string | null>(null); // Add error state
 
   const handleAddWaypoint = async () => {
     const success = await addWaypoint(newWaypointText, newWaypointDescription, newWaypointTags);
@@ -32,6 +34,8 @@ const WaypointsScreen: React.FC = () => {
       setNewWaypointText('');
       setNewWaypointDescription('');
       setNewWaypointTags('');
+    }else{
+    setError('Failed to add waypoint. Please try again.'); // Set error message
     }
   };
 
@@ -56,12 +60,16 @@ const WaypointsScreen: React.FC = () => {
       >
         <Text style={{ color: 'white', textAlign: 'center' }}>Clear All (Debug)</Text>
       </TouchableOpacity>
-     <View style={waypointStyles.searchContainer}>
+
+      <View
+        style={waypointStyles.searchContainer}
+        onTouchStart={() => error && setError(null)}
+      >
         <View style={{ position: 'relative', justifyContent: 'center' }}>
           <TextInput
             style={{
               ...waypointStyles.searchInput,
-              paddingRight: 36, // Space for icon
+              paddingRight: 36, 
             }}
             placeholder="Search waypoints..."
             placeholderTextColor="#888"
@@ -76,25 +84,38 @@ const WaypointsScreen: React.FC = () => {
               position: 'absolute',
               right: 10,
               top: '50%',
-              marginTop: -12, // Half icon height for vertical centering
+              marginTop: -12, 
               zIndex: 1,
             }}
             pointerEvents="none"
           />
         </View>
       </View>
-      <WaypointForm
-        newWaypointText={newWaypointText}
-        setNewWaypointText={setNewWaypointText}
-        newWaypointDescription={newWaypointDescription}
-        setNewWaypointDescription={setNewWaypointDescription}
-        newWaypointTags={newWaypointTags}
-        setNewWaypointTags={setNewWaypointTags}
-        onAdd={handleAddWaypoint}
-      />
+      <View
+        onTouchStart={() => error && setError(null)}
+      >
+        <WaypointForm
+          newWaypointText={newWaypointText}
+          setNewWaypointText={text => {
+            if (error) setError(null);
+            setNewWaypointText(text);
+          }}
+          newWaypointDescription={newWaypointDescription}
+          setNewWaypointDescription={desc => {
+            if (error) setError(null);
+            setNewWaypointDescription(desc);
+          }}
+          newWaypointTags={newWaypointTags}
+          setNewWaypointTags={tags => {
+            if (error) setError(null);
+            setNewWaypointTags(tags);
+          }}
+          onAdd={handleAddWaypoint}
+        />
       </View>
+      </View>
+      {error && <ErrorMessage message={error} onClose={() => setError(null)}/>}
 
-      <View id ='wayPointList'>
       {filteredWaypoints.length > 0 ? (
         <FlatList
           data={filteredWaypoints}
@@ -103,11 +124,13 @@ const WaypointsScreen: React.FC = () => {
           )}
           keyExtractor={(item) => item.id}
           style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
         />
       ) : (
         <EmptyState />
       )}
-      </View>
+
     </View>
   );
 };

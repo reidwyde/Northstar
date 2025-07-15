@@ -23,8 +23,6 @@ import {
   Quest,
   Waypoint,
 } from '../lib/types';
-import { mapQuestToWaypoints, getColumns, getDependencyRank } from '../lib/utils';
-
 import { DataService } from '../services/data.service';
 
 import ConstellationView from '../components/ConstellationView';
