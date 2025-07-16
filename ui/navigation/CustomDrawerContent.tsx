@@ -84,15 +84,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const currentRouteName = state.routeNames[state.index];
   const currentRoute = state.routes[state.index];
   const currentQuestIdx = currentRoute?.params?.questIdx;
-  
 
-  useEffect(() => {
-    console.log('navigation', navigation)
-    const unsubscribe = navigation.addListener('state', () => {
-      forceUpdate({});
-    });
-    return unsubscribe;
-  }, [navigation]);
 
   // Add navigation listener to update active quest when navigation changes
   useEffect(() => {
@@ -113,6 +105,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     return unsubscribe;
   }, [navigation, quests]);
 
+  
   useEffect(() => {
     const loadQuests = async () => {
       try {

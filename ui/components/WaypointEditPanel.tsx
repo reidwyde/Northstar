@@ -66,6 +66,7 @@ const WaypointEditPanel = ({
   const [blocks, setBlocks] = useState('');
   const [blockedBy, setBlockedBy] = useState('');
 
+  console.log('EDITING',waypoints)
   const saveChanges = async () => {
     if (editingWaypoint) {
       const updatedTags = tags
@@ -130,55 +131,6 @@ const WaypointEditPanel = ({
 
   return (
     <View style={styles.panel}>
-      {!editingWaypoint ? (
-        waypoints
-          .filter((waypoint) => waypoint.selected)
-          .map((waypoint) => (
-            <TouchableOpacity
-              key={waypoint.id}
-              onPress={() => {
-                setEditingWaypoint(waypoint);
-                setText(waypoint.text);
-                setDescription(waypoint.description);
-                setTags(waypoint.tags.join(', '));
-                setBlocks(waypoint.blocks.join(', '));
-                setBlockedBy(waypoint.blockedBy.join(', '));
-              }}
-            >
-              <Text style={styles.panelText}>
-                {`${waypoint.text || 'Unnamed'}`}
-              </Text>
-              {waypoint.description && (
-                <Text
-                  style={[styles.panelText, { fontSize: 14, color: '#666' }]}
-                >
-                  {waypoint.description}
-                </Text>
-              )}
-              {waypoint.tags.length > 0 && (
-                <Text
-                  style={[styles.panelText, { fontSize: 12, color: '#888' }]}
-                >
-                  Tags: {waypoint.tags.join(', ')}
-                </Text>
-              )}
-              {waypoint.blocks.length > 0 && (
-                <Text
-                  style={[styles.panelText, { fontSize: 12, color: '#888' }]}
-                >
-                  Blocks: {waypoint.blocks.join(', ')}
-                </Text>
-              )}
-              {waypoint.blockedBy.length > 0 && (
-                <Text
-                  style={[styles.panelText, { fontSize: 12, color: '#888' }]}
-                >
-                  Blocked by: {waypoint.blockedBy.join(', ')}
-                </Text>
-              )}
-            </TouchableOpacity>
-          ))
-      ) : (
         <>
           <TextInput
             placeholder="Enter waypoint text"
@@ -216,7 +168,6 @@ const WaypointEditPanel = ({
             <Button title="Save" onPress={saveChanges} />
           </View>
         </>
-      )}
     </View>
   );
 };

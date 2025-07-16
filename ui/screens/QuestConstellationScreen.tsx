@@ -225,6 +225,45 @@ const QuestConstellationScreen: React.FC<
   );
 
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isTransitioning.current || quests.length === 0) return;
+
+      if (event.key === 'ArrowLeft') {
+        // Go to previous quest
+        isTransitioning.current = true;
+        const newIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
+        Animated.timing(translateX, {
+          toValue: width,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          navigation.setParams({ questIdx: newIdx });
+          translateX.setValue(0);
+          isTransitioning.current = false;
+        });
+      } else if (event.key === 'ArrowRight') {
+        // Go to next quest
+        isTransitioning.current = true;
+        const newIdx = (currentQuestIdx + 1) % quests.length;
+        Animated.timing(translateX, {
+          toValue: -width,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          navigation.setParams({ questIdx: newIdx });
+          translateX.setValue(0);
+          isTransitioning.current = false;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentQuestIdx, quests, navigation, width, translateX]);
+
   if (loading) {
     return (
       <View style={styles.container}>

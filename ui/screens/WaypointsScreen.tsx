@@ -54,12 +54,12 @@ const WaypointsScreen: React.FC = () => {
       <Text style={waypointStyles.header}>Waypoints</Text>
       
       {/* Temporary debug button */}
-      <TouchableOpacity 
+      {/* <TouchableOpacity 
         style={{ backgroundColor: 'red', padding: 10, margin: 10, borderRadius: 5 }}
         onPress={clearAllWaypoints}
       >
         <Text style={{ color: 'white', textAlign: 'center' }}>Clear All (Debug)</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <View
         style={waypointStyles.searchContainer}
