@@ -300,7 +300,10 @@ const QuestConstellationScreen: React.FC<
         {renderConstellation(quests[nextIdx], width)}
       </View>
       {showWaypointEditPanel && (
-        <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />
+        <WaypointEditPanel waypoints={waypoints}
+         setWaypoints={setWaypoints}
+         closePanel={() => setShowWaypointEditPanel(false)}
+ />
       )}
 
       {!showWaypointEditPanel &&

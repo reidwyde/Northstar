@@ -58,11 +58,12 @@ const styles = StyleSheet.create({
 const WaypointEditPanel = ({
   waypoints,
   setWaypoints,
+  closePanel
 }: {
   waypoints: Waypoint[];
   setWaypoints: (waypoints: Waypoint[]) => void;
+  closePanel: () => void;
 }) => {
-  const [editingWaypoint, setEditingWaypoint] = useState<Waypoint | null>(null);
   const [text, setText] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
@@ -70,65 +71,14 @@ const WaypointEditPanel = ({
   const [blockedBy, setBlockedBy] = useState('');
 
   const saveChanges = async () => {
-    if (editingWaypoint) {
-      const updatedTags = tags
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
-
-      const updatedBlocks = blocks
-        .split(',')
-        .map((id) => id.trim())
-        .filter((id) => id.length > 0);
-
-      const updatedBlockedBy = blockedBy
-        .split(',')
-        .map((id) => id.trim())
-        .filter((id) => id.length > 0);
-
-      const updatedWaypoint = {
-        ...editingWaypoint,
-        text,
-        description,
-        tags: updatedTags,
-        blocks: updatedBlocks,
-        blockedBy: updatedBlockedBy,
-        lastModified: new Date(),
-      };
-
-      setWaypoints(
-        waypoints.map((waypoint) =>
-          waypoint.id === editingWaypoint.id ? updatedWaypoint : waypoint,
-        ),
-      );
-
-      // Sync to DynamoDB
-      try {
-        await SyncService.updateAndSync(
-          updatedWaypoint,
-          'waypoint',
-          'waypoints',
-        );
-      } catch (error) {
-        console.error('Error syncing waypoint update:', error);
-        // Continue anyway - offline mode
-      }
-
-      setEditingWaypoint(null);
-    }
+          //Add Implementation
+          // Might not need both save and complete
   };
 
   const completeTask = () => {
-    if (editingWaypoint) {
-      setWaypoints(
-        waypoints.map((waypoint) =>
-          waypoint.id === editingWaypoint.id
-            ? { ...waypoint, completed: true }
-            : waypoint,
-        ),
-      );
-      setEditingWaypoint(null);
-    }
+          //Add Implementation
+
+          closePanel()
   };
 
   function deleteWaypoint(waypointId: string): void {
@@ -205,7 +155,6 @@ const WaypointEditPanel = ({
         </View>
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
-        <Button color= "#225c6e" title="Edit" onPress={() => setEditingWaypoint(null)} />
         <Button color= "#225c6e" title="Complete" onPress={completeTask} />
         <Button color= "#225c6e" title="Save" onPress={saveChanges} />
       </View>
