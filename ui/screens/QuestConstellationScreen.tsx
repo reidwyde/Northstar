@@ -23,8 +23,6 @@ import {
   Quest,
   Waypoint,
 } from '../lib/types';
-import { mapQuestToWaypoints, getColumns, getDependencyRank } from '../lib/utils';
-
 import { DataService } from '../services/data.service';
 
 import ConstellationView from '../components/ConstellationView';
@@ -126,9 +124,11 @@ const QuestConstellationScreen: React.FC<
 
   // Update navigation title when quest changes
   useEffect(() => {
-    if (quests.length > 0 && quests[currentQuestIdx]) {
+    console.log('nav', quests.length,quests[currentQuestIdx])
+    if (quests.length > 0 && quests[currentQuestIdx].name) {
+      console.log('name',quests[currentQuestIdx].name)
       navigation.setOptions({
-        title: quests[currentQuestIdx].name,
+        title: quests[currentQuestIdx]?.name,
       });
     }
   }, [currentQuestIdx, quests, navigation]);
@@ -224,12 +224,45 @@ const QuestConstellationScreen: React.FC<
     </Animated.View>
   );
 
-  //   const renderConstellation = (quest: Quest, offset: number) => (
-  //   <View
-  //   >
-  //     <ConstellationView quest={quest} waypoints={waypoints} setWaypoints={setWaypoints} />
-  //   </View>
-  // );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isTransitioning.current || quests.length === 0) return;
+
+      if (event.key === 'ArrowLeft') {
+        // Go to previous quest
+        isTransitioning.current = true;
+        const newIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
+        Animated.timing(translateX, {
+          toValue: width,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          navigation.setParams({ questIdx: newIdx });
+          translateX.setValue(0);
+          isTransitioning.current = false;
+        });
+      } else if (event.key === 'ArrowRight') {
+        // Go to next quest
+        isTransitioning.current = true;
+        const newIdx = (currentQuestIdx + 1) % quests.length;
+        Animated.timing(translateX, {
+          toValue: -width,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          navigation.setParams({ questIdx: newIdx });
+          translateX.setValue(0);
+          isTransitioning.current = false;
+        });
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentQuestIdx, quests, navigation, width, translateX]);
 
   if (loading) {
     return (
@@ -249,64 +282,31 @@ const QuestConstellationScreen: React.FC<
 
   const prevIdx = (currentQuestIdx - 1 + quests.length) % quests.length;
   const nextIdx = (currentQuestIdx + 1) % quests.length;
-{console.log('quests', quests)}
   return (
     <View style={styles.container}>
-      {/* Add flex: 1 to wayPointView so it takes up available space above the panel */}
       <View
         id="wayPointView"
         {...panResponder.panHandlers}
           style={{
-                  flex: 1,
+                  flex: 1, //so it takes up available space above the panel
                   width: '100%',
                   height: '100%',
-                  justifyContent: 'center',    // Center vertically
+                  justifyContent: 'center',    
                   alignItems: 'center',  
                 }}
-      >
-        
+      >     
         {renderConstellation(quests[prevIdx], -width)}
         {renderConstellation(quests[currentQuestIdx], 0)}
         {renderConstellation(quests[nextIdx], width)}
       </View>
-
-          {/* Horizontally scrollable constellation views */}
-    {/* <View
-      id="wayPointView"
-      style={{
-        flex: 1,
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <FlatList
-        data={
-          quests
-        }
-        keyExtractor={(_, idx) => idx.toString()}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={true}
-        renderItem={({ item, index }) =>
-          renderConstellation(
-            item,
-            width // offset: -width, 0, width
-          )
-        }
-        style={{ flex: 1, width: '100%' }}
-        contentContainerStyle={{
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      />
-    </View> */}
-
       {showWaypointEditPanel && (
-        <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />
+        <WaypointEditPanel waypoints={waypoints}
+         setWaypoints={setWaypoints}
+         closePanel={() => setShowWaypointEditPanel(false)}
+ />
       )}
 
-      {/* Panel stays at the bottom */}
+      {!showWaypointEditPanel &&
       <View
         id="wayPointPanel"
         style={{
@@ -316,7 +316,8 @@ const QuestConstellationScreen: React.FC<
           borderRadius: 4,
           width: '98%',
           backgroundColor: '#183e54',
-          alignSelf: 'center',
+          justifyContent: 'center',
+
         }}
       >
         <View
@@ -327,10 +328,10 @@ const QuestConstellationScreen: React.FC<
             margin: 12,
           }}
         >
-          <View style={{ width: 80 }}>
+          {/* <View style={{ width: 80 }}>
             <Button color="#225c6e" title="Add" onPress={addWaypoint} />
-          </View>
-          <View style={{ width: 80 }}>
+          </View> */}
+          <View style={{ width: 80}}>
             <Button
               color="#225c6e"
               title="Edit"
@@ -339,6 +340,7 @@ const QuestConstellationScreen: React.FC<
           </View>
         </View>
       </View>
+      }
     </View>
   );
 };

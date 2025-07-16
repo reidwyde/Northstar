@@ -79,23 +79,33 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [, forceUpdate] = useState({});
+  const [activeQuestId, setActiveQuestId] = useState<string | null>(null);
   
   const currentRouteName = state.routeNames[state.index];
   const currentRoute = state.routes[state.index];
   const currentQuestIdx = currentRoute?.params?.questIdx;
-  
-  // Debug drawer highlighting
-  console.log('Drawer render - Current route:', currentRouteName, 'Quest idx:', currentQuestIdx);
 
-  // Add navigation listener to force re-render when route changes
+
+  // Add navigation listener to update active quest when navigation changes
   useEffect(() => {
-    const unsubscribe = navigation.addListener('state', () => {
-      // Force component to re-render when navigation state changes
+    const updateActiveQuest = () => {
+      const currentRoute = navigation.getState().routes[navigation.getState().index];
+      const questIdx = currentRoute?.params?.questIdx;
+      if (typeof questIdx === 'number' && quests[questIdx]) {
+        setActiveQuestId(quests[questIdx].id);
+      } else {
+        setActiveQuestId(null);
+      }
       forceUpdate({});
-    });
-    return unsubscribe;
-  }, [navigation]);
+    };
 
+    const unsubscribe = navigation.addListener('state', updateActiveQuest);
+    updateActiveQuest();
+
+    return unsubscribe;
+  }, [navigation, quests]);
+
+  
   useEffect(() => {
     const loadQuests = async () => {
       try {
@@ -116,7 +126,6 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   };
 
   const navigateToQuest = (questName: string, questIdx: number) => {
-    console.log('Drawer navigation to quest:', questName, 'idx:', questIdx);
     navigation.navigate(questName, { questIdx });
   };
 
@@ -159,9 +168,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
                 <Text style={styles.questItemText}>Loading quests...</Text>
               ) : (
                 quests.map((quest, questIdx) => {
-                  // Check if this quest is active by comparing the route name only
-                  // since questIdx in params might not match array index
-                  const isActive = currentRouteName === quest.name;
+                  const isActive = quest.id === activeQuestId;
                   return (
                     <TouchableOpacity
                       key={quest.id}

@@ -50,6 +50,10 @@ interface WaypointFormProps {
   setNewWaypointDescription: (text: string) => void;
   newWaypointTags: string;
   setNewWaypointTags: (text: string) => void;
+  newWaypointBlocks: string;
+  setNewWaypointBlocks: (text: string) => void;
+  newWaypointBlockedBy: string;
+  setNewWaypointBlockedBy: (text: string) => void;
   onAdd: () => void;
 }
 
@@ -73,6 +77,22 @@ export const WaypointForm: React.FC<WaypointFormProps> = ({
     <TextInput
       style={waypointStyles.textInput}
       placeholder="Description (optional)"
+      placeholderTextColor="#888"
+      value={newWaypointDescription}
+      onChangeText={setNewWaypointDescription}
+      multiline
+    />
+    <TextInput
+      style={waypointStyles.textInput}
+      placeholder="Blocks (optional)"
+      placeholderTextColor="#888"
+      value={newWaypointDescription}
+      onChangeText={setNewWaypointDescription}
+      multiline
+    />
+    <TextInput
+      style={waypointStyles.textInput}
+      placeholder="Blocked by (optional)"
       placeholderTextColor="#888"
       value={newWaypointDescription}
       onChangeText={setNewWaypointDescription}
