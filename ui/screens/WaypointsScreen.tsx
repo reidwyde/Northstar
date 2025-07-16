@@ -26,6 +26,9 @@ const WaypointsScreen: React.FC = () => {
   const [newWaypointText, setNewWaypointText] = useState('');
   const [newWaypointDescription, setNewWaypointDescription] = useState('');
   const [newWaypointTags, setNewWaypointTags] = useState('');
+  const [newWaypointBlocks, setNewWaypointBlocks] = useState('');
+  const [newWaypointBlockedBy, setNewWaypointBlockedBy] = useState('');
+
   const [error, setError] = useState<string | null>(null); // Add error state
 
   const handleAddWaypoint = async () => {
@@ -104,6 +107,16 @@ const WaypointsScreen: React.FC = () => {
           setNewWaypointDescription={desc => {
             if (error) setError(null);
             setNewWaypointDescription(desc);
+          }}
+          newWaypointBlocks={newWaypointBlocks}
+          setNewWaypointBlocks={blocks => {
+            if (error) setError(null);
+            setNewWaypointBlocks(blocks);
+          }}
+          newWaypointBlockedBy={newWaypointBlockedBy}
+          setNewWaypointBlockedBy={blockedby => {
+            if (error) setError(null);
+            setNewWaypointBlockedBy(blockedby);
           }}
           newWaypointTags={newWaypointTags}
           setNewWaypointTags={tags => {

@@ -7,9 +7,12 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import { Waypoint } from '../lib/types';
 import { SyncService } from '../services/sync.service';
+import { waypointStyles } from '@/screens/WaypointsScreen.styles';
+import { WaypointItem } from '@/screens/WaypointsForm';
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,7 +42,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: height * 0.4,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#3b3565ff',
     justifyContent: 'center',
     alignItems: 'center',
     borderTopLeftRadius: 10,
@@ -66,7 +69,6 @@ const WaypointEditPanel = ({
   const [blocks, setBlocks] = useState('');
   const [blockedBy, setBlockedBy] = useState('');
 
-  console.log('EDITING',waypoints)
   const saveChanges = async () => {
     if (editingWaypoint) {
       const updatedTags = tags
@@ -129,45 +131,84 @@ const WaypointEditPanel = ({
     }
   };
 
+  function deleteWaypoint(waypointId: string): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <View style={styles.panel}>
-        <>
+      <View style={{ flexDirection: 'row', width: '100%', height: '80%' }}>
+        <View
+          id="editPanel"
+          style={{
+            flex: 1,
+            padding: 12,
+            justifyContent: 'center',
+          }}
+        >
           <TextInput
-            placeholder="Enter waypoint text"
+            style={waypointStyles.textInput}
+            placeholder="Waypoint Title"
+            placeholderTextColor="#888"
             value={text}
-            onChangeText={(text) => setText(text)}
-            style={[styles.panelText, { width: '100%' }]}
+            onChangeText={setText}
           />
           <TextInput
-            placeholder="Enter description"
+            style={waypointStyles.textInput}
+            placeholder="Description (optional)"
+            placeholderTextColor="#888"
             value={description}
-            onChangeText={(text) => setDescription(text)}
-            style={[styles.panelText, { width: '100%' }]}
+            onChangeText={setDescription}
+            multiline
           />
           <TextInput
-            placeholder="Enter tags (comma-separated)"
-            value={tags}
-            onChangeText={(text) => setTags(text)}
-            style={[styles.panelText, { width: '100%' }]}
-          />
-          <TextInput
-            placeholder="Blocks (comma-separated waypoint IDs)"
+            style={waypointStyles.textInput}
+            placeholder="Blocks (optional)"
+            placeholderTextColor="#888"
             value={blocks}
-            onChangeText={(text) => setBlocks(text)}
-            style={[styles.panelText, { width: '100%' }]}
+            onChangeText={setBlocks}
+            multiline
           />
           <TextInput
-            placeholder="Blocked by (comma-separated waypoint IDs)"
+            style={waypointStyles.textInput}
+            placeholder="Blocked by (optional)"
+            placeholderTextColor="#888"
             value={blockedBy}
-            onChangeText={(text) => setBlockedBy(text)}
-            style={[styles.panelText, { width: '100%' }]}
+            onChangeText={setBlockedBy}
+            multiline
           />
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Button title="Edit" onPress={() => setEditingWaypoint(null)} />
-            <Button title="Complete" onPress={completeTask} />
-            <Button title="Save" onPress={saveChanges} />
-          </View>
-        </>
+          <TextInput
+            style={waypointStyles.textInput}
+            placeholder="Tags (comma-separated) Ex: quest1, urgent, work"
+            placeholderTextColor="#888"
+            value={tags}
+            onChangeText={setTags}
+          />
+        </View>
+        <View
+          id="editList"
+          style={{
+            flex: 1,
+            padding: 12,
+          }}
+        >
+          <FlatList
+            data={waypoints}
+            renderItem={({ item }) => (
+              <WaypointItem item={item} onDelete={deleteWaypoint} />
+            )}
+            keyExtractor={(item) => item.id}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+        <Button color= "#225c6e" title="Edit" onPress={() => setEditingWaypoint(null)} />
+        <Button color= "#225c6e" title="Complete" onPress={completeTask} />
+        <Button color= "#225c6e" title="Save" onPress={saveChanges} />
+      </View>
     </View>
   );
 };

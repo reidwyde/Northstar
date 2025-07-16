@@ -303,6 +303,7 @@ const QuestConstellationScreen: React.FC<
         <WaypointEditPanel waypoints={waypoints} setWaypoints={setWaypoints} />
       )}
 
+      {!showWaypointEditPanel &&
       <View
         id="wayPointPanel"
         style={{
@@ -312,7 +313,8 @@ const QuestConstellationScreen: React.FC<
           borderRadius: 4,
           width: '98%',
           backgroundColor: '#183e54',
-          alignSelf: 'center',
+          justifyContent: 'center',
+
         }}
       >
         <View
@@ -323,10 +325,10 @@ const QuestConstellationScreen: React.FC<
             margin: 12,
           }}
         >
-          <View style={{ width: 80 }}>
+          {/* <View style={{ width: 80 }}>
             <Button color="#225c6e" title="Add" onPress={addWaypoint} />
-          </View>
-          <View style={{ width: 80 }}>
+          </View> */}
+          <View style={{ width: 80}}>
             <Button
               color="#225c6e"
               title="Edit"
@@ -335,6 +337,7 @@ const QuestConstellationScreen: React.FC<
           </View>
         </View>
       </View>
+      }
     </View>
   );
 };
